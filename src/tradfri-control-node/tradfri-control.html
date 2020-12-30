@@ -1,0 +1,27 @@
+<script type="text/javascript">
+  RED.nodes.registerType('tradfri-control',{
+      category: 'output',
+      color: '#a6bbcf',
+      defaults: {
+        gateway: { value: '', type: 'tradfri-config' },
+        name: { value: '' }
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'light.png',
+      label: function () {
+          return this.name || 'tradfri-control';
+      }
+  });
+</script>
+
+<script type="text/html" data-template-name="lower-case">
+  <div class="form-row">
+      <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="lower-case">
+  <p>A node that can control Tradfri smart home devices</p>
+</script>

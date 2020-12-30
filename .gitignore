@@ -1,0 +1,6 @@
+/coverage
+/data
+/dist
+/node_modules
+/config/local.json
+*.log
