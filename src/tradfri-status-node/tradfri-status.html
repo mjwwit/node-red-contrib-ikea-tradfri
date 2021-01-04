@@ -1,0 +1,31 @@
+<script type="text/javascript">
+  RED.nodes.registerType('tradfri-status',{
+      category: 'input',
+      color: '#a6bbcf',
+      defaults: {
+        gateway: { value: '', type: 'tradfri-config', required: true },
+        name: { value: '' }
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'light.svg',
+      label: function () {
+          return this.name || 'tradfri-status';
+      }
+  });
+</script>
+
+<script type="text/html" data-template-name="tradfri-status">
+  <div class="form-row">
+      <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-gateway"><i class="fa fa-server"></i> Gateway</label>
+    <input type="text" id="node-input-gateway">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tradfri-status">
+  <p>A node that emits changes in TRADFRI device status</p>
+</script>

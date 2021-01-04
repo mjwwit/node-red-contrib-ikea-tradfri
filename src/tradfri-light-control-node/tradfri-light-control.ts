@@ -30,7 +30,7 @@ interface TradfriLightControlMessage extends NodeMessageInFlow {
 }
 
 module.exports = (RED: NodeAPI) => {
-  const tradfriControlNodeConstructor: NodeConstructor<
+  const tradfriLightControlNodeConstructor: NodeConstructor<
     TradfriLightControlNode,
     TradfriLightControlNodeDef,
     Record<string, never>
@@ -118,5 +118,5 @@ module.exports = (RED: NodeAPI) => {
     })
   }
 
-  RED.nodes.registerType('tradfri-light-control', tradfriControlNodeConstructor)
+  RED.nodes.registerType('tradfri-light-control', tradfriLightControlNodeConstructor)
 }

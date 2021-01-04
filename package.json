@@ -45,7 +45,8 @@
   "node-red": {
     "nodes": {
       "tradfri-config": "dist/tradfri-config-node/tradfri-config.js",
-      "tradfri-light-control": "dist/tradfri-light-control-node/tradfri-light-control.js"
+      "tradfri-light-control": "dist/tradfri-light-control-node/tradfri-light-control.js",
+      "tradfri-status": "dist/tradfri-status-node/tradfri-status.js"
     }
   }
 }
