@@ -1,0 +1,6 @@
+/data
+/src
+/test
+/.*
+/*.js
+/ts*.json

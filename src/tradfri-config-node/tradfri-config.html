@@ -8,7 +8,8 @@
     defaults: {
       name:  { value: '' },
       gatewayHost : { value: '', required: true },
-      securityCode: { value: '', required: true }
+      identity: { value: '', required: true },
+      preSharedKey: { value: '', required: true }
     },
     label: function () {
       return this.name || 'TRADFRI Gateway';
@@ -39,7 +40,24 @@
           $('#node-config-input-gatewayHost').val(data)
         })
         $("#tradfri-discovered-gateway").append(autoDiscoveredGatewayOption)
+        $("#discovered-gateway").css('display', 'block')
       });
+
+      $('#authenticate').click(() => {
+        const securityCode = $('#node-config-input-securityCode').val()
+        const gatewayHost = $('#node-config-input-gatewayHost').val()
+        if (!securityCode || !gatewayHost) {
+          // TODO: Show error
+          return
+        }
+
+        $.post(`/tradfri/gateway/${gatewayHost}/authenticate`, { securityCode }, (data) => {
+          // TODO: Handle error
+          const { identity, preSharedKey } = data
+          $('#node-config-input-identity').val(identity)
+          $('#node-config-input-preSharedKey').val(preSharedKey)
+        })
+      })
     }
   });
 </script>
@@ -53,22 +71,25 @@
     <input type="text" id="node-config-input-name" placeholder="Name">
   </div>
   <div class="form-row">
-    <label for="node-config-input-gatewayHost"><i class="fa fa-tag"></i> Gateway host</label>
+    <label for="node-config-input-gatewayHost"><i class="fa fa-server"></i> Gateway host</label>
     <input type="text" id="node-config-input-gatewayHost" placeholder="Gateway host or IP address">
-    <div>
+    <div id="discovered-gateway" style="display: none;">
       Click to select an auto-discovered gateway: <span id="tradfri-discovered-gateway"></span>
     </div>
   </div>
   <div class="form-row">
-    <label for="node-config-input-securityCode"><i class="fa fa-tag"></i> Security code</label>
+    <label for="node-config-input-securityCode"><i class="fa fa-unlock-alt"></i> Security code</label>
     <input type="password" id="node-config-input-securityCode" placeholder="As found on TRÅDFRI gateway">
   </div>
   <div class="form-row">
-    <label for="node-config-input-securityCode"><i class="fa fa-tag"></i> Identity</label>
+    <button id="authenticate" class="red-ui-button">Authenticate</button>
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-identity"><i class="fa fa-passport"></i> Identity</label>
     <input type="text" disabled id="node-config-input-identity" placeholder="Automatically filled after authentication">
   </div>
   <div class="form-row">
-    <label for="node-config-input-securityCode"><i class="fa fa-tag"></i> Pre-shared key</label>
+    <label for="node-config-input-preSharedKey"><i class="fa fa-key"></i> Pre-shared key</label>
     <input type="text" disabled id="node-config-input-preSharedKey" placeholder="Automatically filled after authentication">
   </div>
   <div class="form-row">

@@ -1,0 +1,93 @@
+<script type="text/javascript">
+  RED.nodes.registerType('tradfri-light-control',{
+      category: 'output',
+      color: '#a6bbcf',
+      defaults: {
+        gateway: { value: '', type: 'tradfri-config', required: true },
+        name: { value: '' },
+        action: { value: '' },
+        accessories: { value: [] },
+        groups: { value: [] }
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'light.svg',
+      label: function () {
+          return this.name || 'tradfri-light-control';
+      },
+      oneditprepare : function () {
+        const reloadAccessoriesAndGroups = (node) => {
+          console.info('Selected accessories:', this.accessories)
+          console.info('Selected groups:', this.groups)
+
+          $('#node-input-accessories').html('')
+          $('#node-input-groups').html('')
+
+          if (!node || node === '_ADD_') {
+            return
+          }
+
+          $.get(`/tradfri/gateway/${node}/accessories`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            data.forEach((accessory) => {
+              $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
+            })
+
+            $('#node-input-accessories').val(this.accessories)
+          });
+
+          $.get(`/tradfri/gateway/${node}/groups`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            data.forEach((group) => {
+              $('#node-input-groups').append(`<option value="${group.instanceId}">${group.name}</option>`)
+            })
+
+            $('#node-input-groups').val(this.groups)
+          });
+        }
+
+        $('#node-input-gateway').change(() => {
+          reloadAccessoriesAndGroups($('#node-input-gateway').val())
+        })
+
+        reloadAccessoriesAndGroups($('#node-input-gateway').val())
+      }
+  });
+</script>
+
+<script type="text/html" data-template-name="tradfri-light-control">
+  <div class="form-row">
+      <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-gateway"><i class="fa fa-server"></i> Gateway</label>
+    <input type="text" id="node-input-gateway">
+  </div>
+  <div class="form-row">
+    <label for="node-input-action"><i class="fa fa-arrow-right"></i> Action</label>
+    <select id="node-input-action">
+      <option value=""></option>
+      <option value="on">On</option>
+      <option value="off">Off</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-accessories"><i class="fa fa-lightbulb-o"></i> Light(s)</label>
+    <select id="node-input-accessories" multiple></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-groups"><i class="fa fa-object-group"></i> Group(s)</label>
+    <select id="node-input-groups" multiple></select>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tradfri-light-control">
+  <p>A node that can control Tradfri smart home lights</p>
+</script>
