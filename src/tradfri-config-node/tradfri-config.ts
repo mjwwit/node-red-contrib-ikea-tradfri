@@ -1,4 +1,4 @@
-import { Node, NodeAPI, NodeConstructor, NodeDef } from 'node-red'
+import { NodeAPI, NodeConstructor, NodeDef } from 'node-red'
 import {
   Accessory,
   discoverGateway,
@@ -7,18 +7,8 @@ import {
   TradfriError,
   TradfriErrorCodes,
 } from 'node-tradfri-client'
-
-export interface TradfriCredentials {
-  identity: string
-  preSharedKey: string
-}
-
-export interface TradfriConfigNode extends Node<TradfriCredentials> {
-  gatewayHost: string
-  client: TradfriClient
-  accessories: Map<number, Accessory>
-  groups: Map<number, Group>
-}
+import { deviceTypeMap } from '../common/tradfri-device-type'
+import { TradfriConfigNode, TradfriCredentials } from './types'
 
 interface TradfriConfigNodeDef extends NodeDef {
   gatewayHost: string
@@ -31,7 +21,7 @@ const TRADFRI_ERROR_CODES: Record<TradfriErrorCodes, string> = {
   '3': 'NetworkReset',
 }
 
-module.exports = (RED: NodeAPI) => {
+export = (RED: NodeAPI): void | Promise<void> => {
   const tradfriConfigNodeConstructor: NodeConstructor<
     TradfriConfigNode,
     TradfriConfigNodeDef,
@@ -165,6 +155,7 @@ module.exports = (RED: NodeAPI) => {
           Array.from(gateway.accessories.values()).map((a) => ({
             name: a.name,
             instanceId: a.instanceId,
+            type: deviceTypeMap[a.type],
           }))
       )
     }

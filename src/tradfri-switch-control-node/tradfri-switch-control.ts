@@ -1,38 +1,52 @@
-import {
-  Node,
-  NodeAPI,
-  NodeConstructor,
-  NodeDef,
-  NodeMessageInFlow,
-} from 'node-red'
-import { TradfriConfigNode } from '../tradfri-config-node/tradfri-config'
+import { Node, NodeAPI, NodeConstructor, NodeDef } from 'node-red'
+import * as t from 'io-ts'
+import { isLeft } from 'fp-ts/lib/Either'
+import { TradfriConfigNode } from '../tradfri-config-node/types'
+import { messageType } from '../common/message-type'
 
-type TradfriLightControlAction = 'on' | 'off' | 'dim'
+const tradfriSwitchControlActionType = t.union(
+  [t.literal('on'), t.literal('off')],
+  'TradfriSwitchControlAction'
+)
+type TradfriSwitchControlAction = t.TypeOf<
+  typeof tradfriSwitchControlActionType
+>
 
-interface TradfriLightControlNode extends Node<Record<string, never>> {
+interface TradfriSwitchControlNode extends Node<Record<string, never>> {
   gateway: TradfriConfigNode
-  action?: TradfriLightControlAction
+  action?: TradfriSwitchControlAction
   accessories?: number[]
   groups?: number[]
 }
 
-interface TradfriLightControlNodeDef extends NodeDef {
+interface TradfriSwitchControlNodeDef extends NodeDef {
   gateway: string
-  action?: TradfriLightControlAction
+  action?: TradfriSwitchControlAction
   accessories?: number[]
   groups?: number[]
 }
 
-interface TradfriLightControlMessage extends NodeMessageInFlow {
-  action?: TradfriLightControlAction
-  accessories?: number[]
-  groups?: number[]
-}
+const tradfriSwitchControlMessageType = t.intersection(
+  [
+    t.partial({
+      switchControl: t.partial(
+        {
+          action: tradfriSwitchControlActionType,
+          accessories: t.array(t.Int),
+          groups: t.array(t.Int),
+        },
+        'TradfriSwitchControlMessagePayloadSwitchAction'
+      ),
+    }),
+    messageType,
+  ],
+  'TradfriSwitchControlMessage'
+)
 
-module.exports = (RED: NodeAPI) => {
-  const tradfriLightControlNodeConstructor: NodeConstructor<
-    TradfriLightControlNode,
-    TradfriLightControlNodeDef,
+export = (RED: NodeAPI): void | Promise<void> => {
+  const tradfriSwitchControlNodeConstructor: NodeConstructor<
+    TradfriSwitchControlNode,
+    TradfriSwitchControlNodeDef,
     Record<string, never>
   > = function (nodeDef) {
     RED.nodes.createNode(this, nodeDef)
@@ -42,13 +56,24 @@ module.exports = (RED: NodeAPI) => {
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
 
-    this.on('input', (message: TradfriLightControlMessage) => {
-      const action = message.action || this.action
+    this.on('input', (message) => {
+      const maybeSwitchControlMessage = tradfriSwitchControlMessageType.decode(
+        message
+      )
+      if (isLeft(maybeSwitchControlMessage)) {
+        this.error('Invalid message received!')
+        return
+      }
+      const switchControlMessage = maybeSwitchControlMessage.right
+      const action = switchControlMessage.switchControl?.action || this.action
       const accessoryIds = [
-        ...(message.accessories || []),
+        ...(switchControlMessage.switchControl?.accessories || []),
         ...(this.accessories || []),
       ]
-      const groupIds = [...(message.groups || []), ...(this.groups || [])]
+      const groupIds = [
+        ...(switchControlMessage.switchControl?.groups || []),
+        ...(this.groups || []),
+      ]
 
       if (!action) {
         this.warn('No action set in message or node configuration!')
@@ -73,8 +98,8 @@ module.exports = (RED: NodeAPI) => {
               )
               .map((accessory) =>
                 Promise.allSettled([
-                  ...accessory.lightList?.map((l) => l.turnOn()),
-                  ...accessory.plugList?.map((p) => p.turnOn()),
+                  ...(accessory.lightList?.map((l) => l.turnOn()) || []),
+                  ...(accessory.plugList?.map((p) => p.turnOn()) || []),
                 ])
               ),
             ...Array.from(this.gateway.groups.values())
@@ -96,8 +121,8 @@ module.exports = (RED: NodeAPI) => {
               )
               .map((accessory) =>
                 Promise.allSettled([
-                  ...accessory.lightList?.map((l) => l.turnOff()),
-                  ...accessory.plugList?.map((p) => p.turnOff()),
+                  ...(accessory.lightList?.map((l) => l.turnOff()) || []),
+                  ...(accessory.plugList?.map((p) => p.turnOff()) || []),
                 ])
               ),
             ...Array.from(this.gateway.groups.values())
@@ -112,11 +137,16 @@ module.exports = (RED: NodeAPI) => {
             })
           break
         default:
-          this.error(`Unsupported tradfri-control action: "${action}"`)
+          this.error(
+            `Unsupported tradfri-control action: "${action as string}"`
+          )
           return
       }
     })
   }
 
-  RED.nodes.registerType('tradfri-light-control', tradfriLightControlNodeConstructor)
+  RED.nodes.registerType(
+    'tradfri-switch-control',
+    tradfriSwitchControlNodeConstructor
+  )
 }

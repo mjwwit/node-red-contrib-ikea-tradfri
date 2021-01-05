@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  RED.nodes.registerType('tradfri-light-control',{
+  RED.nodes.registerType('tradfri-switch-control',{
       category: 'output',
       color: '#a6bbcf',
       defaults: {
@@ -11,9 +11,9 @@
       },
       inputs: 1,
       outputs: 0,
-      icon: 'light.svg',
+      icon: 'switch.svg',
       label: function () {
-          return this.name || 'tradfri-light-control';
+          return this.name || 'tradfri-switch-control';
       },
       oneditprepare : function () {
         const reloadAccessoriesAndGroups = (node) => {
@@ -32,9 +32,11 @@
               return
             }
 
-            data.forEach((accessory) => {
-              $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
-            })
+            data
+              .filter((accessory) => (['lightbulb', 'plug'].includes(accessory.type)))
+              .forEach((accessory) => {
+                $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
+              })
 
             $('#node-input-accessories').val(this.accessories)
           });
@@ -61,7 +63,7 @@
   });
 </script>
 
-<script type="text/html" data-template-name="tradfri-light-control">
+<script type="text/html" data-template-name="tradfri-switch-control">
   <div class="form-row">
       <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
       <input type="text" id="node-input-name" placeholder="Name">
@@ -79,7 +81,7 @@
     </select>
   </div>
   <div class="form-row">
-    <label for="node-input-accessories"><i class="fa fa-lightbulb-o"></i> Light(s)</label>
+    <label for="node-input-accessories"><i class="fa fa-toggle-on"></i> Switch(es)</label>
     <select id="node-input-accessories" multiple></select>
   </div>
   <div class="form-row">
@@ -88,6 +90,29 @@
   </div>
 </script>
 
-<script type="text/html" data-help-name="tradfri-light-control">
-  <p>A node that can control Tradfri smart home lights</p>
+<script type="text/html" data-help-name="tradfri-switch-control">
+  <p>Turns on or off TRÅDFRI smart home lights and switches.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">switchControl
+      <span class="property-type">{<br>
+        &nbsp;&nbsp;action?: 'on' | 'off',<br>
+        &nbsp;&nbsp;accessories?: number[],<br>
+        &nbsp;&nbsp;groups?: number[]<br>
+      }</span>
+    </dt>
+    <dd> the specific action to execute.</dd>
+  </dl>
+
+  <h3>Details</h3>
+  <p><code>msg.switchControl</code>is an optional Object that can control the specific action of the node.
+  If left empty, the configured action will be executed.</p>
+  <p>If both the <code>msg.switchControl</code> and the node configuration are specified the node will execute
+  the action type (<code>msg.switchControl.action</code>) of the message for the accessories and groups in both
+  <code>msg.switchControl</code> and the node configuration.</p>
+
+  <h3>References</h3>
+  <ul>
+    <li><a href="https://github.com/">GitHub</a> - the nodes GitHub repository</li>
+  </ul>
 </script>

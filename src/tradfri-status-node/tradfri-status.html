@@ -8,7 +8,7 @@
       },
       inputs: 0,
       outputs: 1,
-      icon: 'light.svg',
+      icon: 'bridge.svg',
       label: function () {
           return this.name || 'tradfri-status';
       }
@@ -27,5 +27,81 @@
 </script>
 
 <script type="text/html" data-help-name="tradfri-status">
-  <p>A node that emits changes in TRADFRI device status</p>
+  <p>Emits changes in TRÅDFRI device status.</p>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>updatedDevice
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> the device that was updated.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.type
+      <span class="property-type">string</span>
+    </dt>
+    <dd> the type of the device.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.instanceId
+      <span class="property-type">number</span>
+    </dt>
+    <dd> the unique identifier of the device.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.name
+      <span class="property-type">string</span>
+    </dt>
+    <dd> the name of the device.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.alive
+      <span class="property-type">boolean</span>
+    </dt>
+    <dd> whether the device is alive.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.lastSeen
+      <span class="property-type">string</span>
+    </dt>
+    <dd> ISO8601 date when the device was last seen.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt>updatedDevice.deviceInfo
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> device information like remaining battery and firmware version.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt class="optional">updatedDevice.blind
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> if the device is a window blind, this object contains the blind status.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt class="optional">updatedDevice.lightbulb
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> if the device is a lightbulb, this object contains the bulb status.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt class="optional">updatedDevice.sensor
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> if the device is a sensor, this object contains the sensor status.</dd>
+  </dl>
+  <dl class="message-properties">
+    <dt class="optional">updatedDevice.plug
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> if the device is a plug, this object contains the plug status.</dd>
+  </dl>
+
+  <h3>Details</h3>
+  <p><code>msg.updatedDevice</code>contains the details of the device that was updated.
+  Depending on the type of device, different properties will be set.</p>
+
+  <h3>References</h3>
+  <ul>
+    <li><a href="https://github.com/">GitHub</a> - the nodes GitHub repository</li>
+  </ul>
 </script>
