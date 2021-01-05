@@ -13,12 +13,13 @@
     "dev": "node ./node_modules/node-red/red.js --userDir ./data",
     "dev:watch": "nodemon -e ts,html --watch src --exec 'npm run build && npm run dev'"
   },
+  "homepage": "https://github.com/mjwwit/node-red-contrib-ikea-tradfri",
+  "repository": "github:mjwwit/node-red-contrib-ikea-tradfri",
   "author": "Michael de Wit <mjwwit@gmail.com>",
-  "license": "UNLICENSED",
+  "license": "ISC",
   "engines": {
     "node": ">=12.9"
   },
-  "engineStrict": true,
   "dependencies": {
     "fp-ts": "^2.9.3",
     "io-ts": "^2.2.13",
