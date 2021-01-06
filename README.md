@@ -12,7 +12,7 @@ Alternatively, you can install this module through the editor UI palette.
 This module contains 3 nodes:
 - tradfri-config for connecting to the gateway
 - tradfri-switch-control for controlling on/off capable devices (plugs and lightbulbs)
-- tradfri-status for monitoring device status
+- tradfri-status for monitoring devices and groups
 
 ### tradfri-config
 This node is responsible for connecting to an IKEA TRÅDFRI gateway on your network. An attempt is made to automatically discover a gateway on the network. If this is unsuccessful a valid hostname or ip-address has to be entered. You also need to enter the gateways security code, as printed on the sticker on the bottom of the gateway. As per IKEA's guidelines, this code is not stored in Node-RED, instead, only the identity and pre-shared key returned after successful authentication are stored within the node.
@@ -28,23 +28,39 @@ If both are specified, the node will pick the action (on or off) from the messag
 #### Input
 ```json
 {
-  "switchControl": {
-    "action": "on/off",
-    "accessories": [1, 2, 3],
-    "groups": [1, 2, 3]
-  }
+  "topic": [1, 2],
+  "payload": "on"
 }
+
+{
+  "topic": 1,
+  "payload": "off"
+}
+
+{
+  "topic": 1,
+}
+
+{
+  "payload": "on",
+}
+
+{}
 ```
 
 ### tradfri-status
-This node will send messages when a device state is updated. The message will contain all the specific details for the updated device. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
+This node will send messages when a device or group is updated or removed. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
 
-Depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+Depending on the type of event, `payload.event` will have a different value.
+
+In case of the `"device updated"` event, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
 
 #### Output
 ```json
 {
-  "updatedDevice": {
+  "topic": 1,
+  "payload": {
+    "event": "device updated",
     "type": "device type (lightbulb, plug, motionSensor, etc.)",
     "instanceId": 1,
     "name": "the human friendly device name",
@@ -85,9 +101,39 @@ Depending on the type of the updated device one of the `blind`, `lightbulb`, `se
     }
   }
 }
+
+{
+  "topic": 1,
+  "payload": {
+    "event": "device removed",
+    "instanceId": 1
+  }
+}
+
+{
+  "topic": 1,
+  "payload": {
+    "event": "group updated",
+    "instanceId": 1,
+    "name": "the human friendly group name",
+    "deviceIds": [2],
+    "isOn": true,
+    "dimmer": 65,
+    "position": 0,
+    "transitionTime": 500,
+    "createdAt": "2021-01-01T12:00:00Z"
+  }
+}
 ```
 
 ## Changelog
+
+### 0.2.0
+- Add node status to both tradfri-status and tradfri-switch-control nodes
+- Switch from custom message properties to `payload` and `topic`
+- Allow tradfri-status to watch for group updates as well
+- Improve node help
+- Support Node.js 10 by including a `Promise.allSettled` polyfill
 
 ### 0.1.0
 - Initial release

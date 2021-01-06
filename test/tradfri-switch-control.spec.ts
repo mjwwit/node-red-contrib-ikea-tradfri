@@ -9,6 +9,7 @@ const mockTradfriClient: {
   connect: jest.Mock
   observeDevices: jest.Mock
   observeGroupsAndScenes: jest.Mock
+  ping: jest.Mock
 } = {
   authenticate: jest
     .fn()
@@ -22,6 +23,7 @@ const mockTradfriClient: {
   observeGroupsAndScenes: jest
     .fn()
     .mockRejectedValue(new Error('Unexpected call to observeGroupsAndScenes')),
+  ping: jest.fn().mockRejectedValue(new Error('Unexpected call to ping')),
 }
 const mockTradfriClientConstructor = jest
   .fn()
@@ -50,6 +52,7 @@ describe('Tradfri switch control node', () => {
     mockTradfriClient.connect.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeDevices.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeGroupsAndScenes.mockResolvedValueOnce(void 0)
+    mockTradfriClient.ping.mockResolvedValueOnce(true)
 
     const flow = [
       {
@@ -85,6 +88,7 @@ describe('Tradfri switch control node', () => {
     mockTradfriClient.connect.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeDevices.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeGroupsAndScenes.mockResolvedValueOnce(void 0)
+    mockTradfriClient.ping.mockResolvedValueOnce(true)
 
     const flow = [
       {
@@ -167,7 +171,7 @@ describe('Tradfri switch control node', () => {
     expect(accessoryTurnOffFn).not.toHaveBeenCalled()
     expect(groupTurnOffFn).not.toHaveBeenCalled()
 
-    n2.receive({ switchControl: { action: 'off' } } as any)
+    n2.receive({ payload: 'off' } as any)
 
     expect(accessoryTurnOffFn).toHaveBeenCalledTimes(1)
     expect(groupTurnOffFn).toHaveBeenCalledTimes(1)

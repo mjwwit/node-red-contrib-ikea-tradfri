@@ -1,3 +1,4 @@
+import 'core-js/es/promise/all-settled'
 import { Node, NodeAPI, NodeConstructor, NodeDef } from 'node-red'
 import * as t from 'io-ts'
 import { isLeft } from 'fp-ts/lib/Either'
@@ -29,14 +30,8 @@ interface TradfriSwitchControlNodeDef extends NodeDef {
 const tradfriSwitchControlMessageType = t.intersection(
   [
     t.partial({
-      switchControl: t.partial(
-        {
-          action: tradfriSwitchControlActionType,
-          accessories: t.array(t.Int),
-          groups: t.array(t.Int),
-        },
-        'TradfriSwitchControlMessagePayloadSwitchAction'
-      ),
+      topic: t.union([t.Int, t.array(t.Int)]),
+      payload: tradfriSwitchControlActionType,
     }),
     messageType,
   ],
@@ -56,6 +51,32 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
 
+    const setConnected = () => {
+      this.status({ fill: 'green', shape: 'dot', text: 'connected' })
+    }
+
+    const setDisconnected = () => {
+      this.status({ fill: 'red', shape: 'ring', text: 'disconnected' })
+    }
+
+    const setConnecting = () => {
+      this.status({ fill: 'yellow', shape: 'ring', text: 'connecting...' })
+    }
+
+    setConnecting()
+
+    this.gateway.client
+      .on('connection alive', setConnected)
+      .on('connection lost', setDisconnected)
+      .on('connection failed', setDisconnected)
+      .on('reconnecting', setConnecting)
+      .on('ping succeeded', setConnected)
+      .on('ping failed', setDisconnected)
+      .ping()
+      .catch((err) => {
+        this.error(`Unable to ping gateway! ${String(err)}`)
+      })
+
     this.on('input', (message) => {
       const maybeSwitchControlMessage = tradfriSwitchControlMessageType.decode(
         message
@@ -65,13 +86,22 @@ export = (RED: NodeAPI): void | Promise<void> => {
         return
       }
       const switchControlMessage = maybeSwitchControlMessage.right
-      const action = switchControlMessage.switchControl?.action || this.action
+      const action = switchControlMessage.payload || this.action
+      const instanceIds = Array.isArray(switchControlMessage.topic)
+        ? switchControlMessage.topic
+        : typeof switchControlMessage.topic === 'number'
+        ? [switchControlMessage.topic]
+        : []
       const accessoryIds = [
-        ...(switchControlMessage.switchControl?.accessories || []),
+        ...instanceIds.filter((instanceId) =>
+          this.gateway.accessories.has(instanceId)
+        ),
         ...(this.accessories || []),
       ]
       const groupIds = [
-        ...(switchControlMessage.switchControl?.groups || []),
+        ...instanceIds.filter((instanceId) =>
+          this.gateway.groups.has(instanceId)
+        ),
         ...(this.groups || []),
       ]
 

@@ -1,6 +1,6 @@
 <script type="text/javascript">
   RED.nodes.registerType('tradfri-switch-control',{
-      category: 'output',
+      category: 'smart home',
       color: '#a6bbcf',
       defaults: {
         gateway: { value: '', type: 'tradfri-config', required: true },
@@ -32,6 +32,7 @@
               return
             }
 
+            $('#node-input-accessories').append(`<option value="">None</option>`)
             data
               .filter((accessory) => (['lightbulb', 'plug'].includes(accessory.type)))
               .forEach((accessory) => {
@@ -46,6 +47,7 @@
               return
             }
 
+            $('#node-input-groups').append(`<option value="">None</option>`)
             data.forEach((group) => {
               $('#node-input-groups').append(`<option value="${group.instanceId}">${group.name}</option>`)
             })
@@ -94,25 +96,24 @@
   <p>Turns on or off TRÅDFRI smart home lights and switches.</p>
   <h3>Inputs</h3>
   <dl class="message-properties">
-    <dt class="optional">switchControl
-      <span class="property-type">{<br>
-        &nbsp;&nbsp;action?: 'on' | 'off',<br>
-        &nbsp;&nbsp;accessories?: number[],<br>
-        &nbsp;&nbsp;groups?: number[]<br>
-      }</span>
+    <dt class="optional">topic
+      <span class="property-type">number | number[]</span>
+    </dt>
+    <dd> the instanceIds of the devices or groups to control.</dd>
+    <dt class="optional">payload
+      <span class="property-type">'on' | 'off'</span>
     </dt>
     <dd> the specific action to execute.</dd>
   </dl>
 
   <h3>Details</h3>
-  <p><code>msg.switchControl</code>is an optional Object that can control the specific action of the node.
-  If left empty, the configured action will be executed.</p>
-  <p>If both the <code>msg.switchControl</code> and the node configuration are specified the node will execute
-  the action type (<code>msg.switchControl.action</code>) of the message for the accessories and groups in both
-  <code>msg.switchControl</code> and the node configuration.</p>
+  <p>The executed action of the node can be controlled through the configuration or the input
+  <code>msg.payload</code> property. The input message action will override any configured action.</p>
+  <p>The devices and/or groups to control are the union of those configured in the node and those passed in input
+  messages through <code>msg.topic</code></p>
 
   <h3>References</h3>
   <ul>
-    <li><a href="https://github.com/">GitHub</a> - the nodes GitHub repository</li>
+    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-switch-control">GitHub</a> - the nodes GitHub repository</li>
   </ul>
 </script>

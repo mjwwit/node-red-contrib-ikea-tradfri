@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-ikea-tradfri",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Node-RED nodes to get updates from and control devices connected to an IKEA TRADFRI gateway",
   "main": "dist/index.js",
   "scripts": {
@@ -18,9 +18,10 @@
   "author": "Michael de Wit <mjwwit@gmail.com>",
   "license": "ISC",
   "engines": {
-    "node": ">=12.9"
+    "node": ">=10"
   },
   "dependencies": {
+    "core-js": "^3.8.2",
     "fp-ts": "^2.9.3",
     "io-ts": "^2.2.13",
     "node-tradfri-client": "^2.1.8"

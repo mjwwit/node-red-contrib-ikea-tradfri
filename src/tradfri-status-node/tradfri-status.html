@@ -1,6 +1,6 @@
 <script type="text/javascript">
   RED.nodes.registerType('tradfri-status',{
-      category: 'input',
+      category: 'smart home',
       color: '#a6bbcf',
       defaults: {
         gateway: { value: '', type: 'tradfri-config', required: true },
@@ -27,81 +27,154 @@
 </script>
 
 <script type="text/html" data-help-name="tradfri-status">
-  <p>Emits changes in TRÅDFRI device status.</p>
+  <p>Emits changes in TRÅDFRI device or groups connected to a gateway.</p>
   <h3>Outputs</h3>
+  <h4>Common</h4>
   <dl class="message-properties">
-    <dt>updatedDevice
-      <span class="property-type">Object</span>
-    </dt>
-    <dd> the device that was updated.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt>updatedDevice.type
-      <span class="property-type">string</span>
-    </dt>
-    <dd> the type of the device.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt>updatedDevice.instanceId
+    <dt>topic
       <span class="property-type">number</span>
     </dt>
-    <dd> the unique identifier of the device.</dd>
+    <dd> the instanceId of the device or group that was updated or removed.</dd>
+
+    <dt>payload
+      <span class="property-type">Object</span>
+    </dt>
+    <dd> the details of the device or group that was updated or removed.</dd>
+
+    <dt>payload.event
+      <span class="property-type">string</span>
+    </dt>
+    <dd> the specific update event.</dd>
+
+    <dt>payload.instanceId
+      <span class="property-type">number</span>
+    </dt>
+    <dd> the unique identifier of the device or group that was updated or removed.</dd>
   </dl>
+
+  <h4>Device updated</h4>
   <dl class="message-properties">
-    <dt>updatedDevice.name
+    <dt>payload.event
+      <span class="property-type">"device updated"</span>
+    </dt>
+    <dd> the specific update event.</dd>
+
+    <dt>payload.type
+      <span class="property-type">string</span>
+    </dt>
+    <dd> the type of the device that was updated.</dd>
+
+    <dt>payload.name
       <span class="property-type">string</span>
     </dt>
     <dd> the name of the device.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt>updatedDevice.alive
+
+    <dt>payload.alive
       <span class="property-type">boolean</span>
     </dt>
     <dd> whether the device is alive.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt>updatedDevice.lastSeen
+
+    <dt>payload.lastSeen
       <span class="property-type">string</span>
     </dt>
-    <dd> ISO8601 date when the device was last seen.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt>updatedDevice.deviceInfo
+    <dd> ISO8601 date-time when the device was last seen.</dd>
+
+    <dt>payload.deviceInfo
       <span class="property-type">Object</span>
     </dt>
     <dd> device information like remaining battery and firmware version.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt class="optional">updatedDevice.blind
+
+    <dt class="optional">payload.blind
       <span class="property-type">Object</span>
     </dt>
     <dd> if the device is a window blind, this object contains the blind status.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt class="optional">updatedDevice.lightbulb
+
+    <dt class="optional">payload.lightbulb
       <span class="property-type">Object</span>
     </dt>
     <dd> if the device is a lightbulb, this object contains the bulb status.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt class="optional">updatedDevice.sensor
+
+    <dt class="optional">payload.sensor
       <span class="property-type">Object</span>
     </dt>
     <dd> if the device is a sensor, this object contains the sensor status.</dd>
-  </dl>
-  <dl class="message-properties">
-    <dt class="optional">updatedDevice.plug
+
+    <dt class="optional">payload.plug
       <span class="property-type">Object</span>
     </dt>
     <dd> if the device is a plug, this object contains the plug status.</dd>
   </dl>
 
+  <h4>Device removed</h4>
+  <dl class="message-properties">
+    <dt>payload.event
+      <span class="property-type">"device removed"</span>
+    </dt>
+    <dd> the specific update event.</dd>
+  </dl>
+
+  <h4>Group updated</h4>
+  <dl class="message-properties">
+    <dt>payload.event
+      <span class="property-type">"group updated"</span>
+    </dt>
+    <dd> the specific update event.</dd>
+
+    <dt>payload.name
+      <span class="property-type">string</span>
+    </dt>
+    <dd> the name of the group.</dd>
+
+    <dt>payload.deviceIds
+      <span class="property-type">number[]</span>
+    </dt>
+    <dd> devices contained in the group.</dd>
+
+    <dt class="optional">payload.sceneId
+      <span class="property-type">number</span>
+    </dt>
+    <dd> active scene of the group.</dd>
+
+    <dt>payload.isOn
+      <span class="property-type">boolean</span>
+    </dt>
+    <dd> whether all switchable devices in the group are turned on.</dd>
+
+    <dt class="optional">payload.dimmer
+      <span class="property-type">number</span>
+    </dt>
+    <dd> dimmer value for contained dimmable lightbulbs.</dd>
+
+    <dt class="optional">payload.position
+      <span class="property-type">number</span>
+    </dt>
+    <dd> position value for contained window blinds.</dd>
+
+    <dt>payload.transitionTime
+      <span class="property-type">number</span>
+    </dt>
+    <dd> transition time used by the group.</dd>
+
+    <dt>payload.createdAt
+      <span class="property-type">string</span>
+    </dt>
+    <dd> ISO8601 date-time when the group was created.</dd>
+  </dl>
+
+  <h4>Group removed</h4>
+  <dl class="message-properties">
+    <dt>payload.event
+      <span class="property-type">"group removed"</span>
+    </dt>
+    <dd> the specific update event.</dd>
+  </dl>
+
   <h3>Details</h3>
-  <p><code>msg.updatedDevice</code>contains the details of the device that was updated.
-  Depending on the type of device, different properties will be set.</p>
+  <p><code>msg.payload</code>contains the details of the device or group that was updated or removed.
+  Depending on the type of update, different properties will be set.</p>
 
   <h3>References</h3>
   <ul>
-    <li><a href="https://github.com/">GitHub</a> - the nodes GitHub repository</li>
+    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-status">GitHub</a> - the nodes GitHub repository</li>
   </ul>
 </script>

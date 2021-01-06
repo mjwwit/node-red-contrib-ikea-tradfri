@@ -32,8 +32,10 @@ interface TradfriStatusNodeDef extends NodeDef {
   gateway: string
 }
 
-interface TradfriStatusMessage extends NodeMessage {
-  updatedDevice: {
+interface TradfriDeviceUpdatedMessage extends NodeMessage {
+  topic: number
+  payload: {
+    event: 'device updated'
     type: DeviceType
     instanceId: number
     name: string
@@ -86,6 +88,39 @@ interface TradfriStatusMessage extends NodeMessage {
   }
 }
 
+interface TradfriDeviceRemovedMessage extends NodeMessage {
+  topic: number
+  payload: {
+    event: 'device removed'
+    instanceId: number
+  }
+}
+
+interface TradfriGroupUpdatedMessage extends NodeMessage {
+  topic: number
+  payload: {
+    event: 'group updated'
+    instanceId: number
+    name: string
+    deviceIds: number[]
+    sceneId?: number
+    isOn: boolean
+    dimmer?: number
+    position?: number
+    transitionTime: number
+    createdAt: string
+    trigger?: number
+  }
+}
+
+interface TradfriGroupRemovedMessage extends NodeMessage {
+  topic: number
+  payload: {
+    event: 'group removed'
+    instanceId: number
+  }
+}
+
 export = (RED: NodeAPI): void | Promise<void> => {
   const tradfriStatusNodeConstructor: NodeConstructor<
     TradfriStatusNode,
@@ -96,9 +131,37 @@ export = (RED: NodeAPI): void | Promise<void> => {
 
     this.gateway = RED.nodes.getNode(nodeDef.gateway) as TradfriConfigNode
 
+    const setConnected = () => {
+      this.status({ fill: 'green', shape: 'dot', text: 'connected' })
+    }
+
+    const setDisconnected = () => {
+      this.status({ fill: 'red', shape: 'ring', text: 'disconnected' })
+    }
+
+    const setConnecting = () => {
+      this.status({ fill: 'yellow', shape: 'ring', text: 'connecting...' })
+    }
+
+    setConnecting()
+
+    this.gateway.client
+      .on('connection alive', setConnected)
+      .on('connection lost', setDisconnected)
+      .on('connection failed', setDisconnected)
+      .on('reconnecting', setConnecting)
+      .on('ping succeeded', setConnected)
+      .on('ping failed', setDisconnected)
+      .ping()
+      .catch((err) => {
+        this.error(`Unable to ping gateway! ${String(err)}`)
+      })
+
     this.gateway.client.on('device updated', (accessory) => {
-      const message: TradfriStatusMessage = {
-        updatedDevice: {
+      const message: TradfriDeviceUpdatedMessage = {
+        topic: accessory.instanceId,
+        payload: {
+          event: 'device updated',
           type: deviceTypeMap[accessory.type],
           instanceId: accessory.instanceId,
           name: accessory.name,
@@ -158,6 +221,48 @@ export = (RED: NodeAPI): void | Promise<void> => {
                   powerFactor: accessory.plugList[0].powerFactor,
                 }
               : undefined,
+        },
+      }
+      this.send(message)
+    })
+
+    this.gateway.client.on('device removed', (instanceId) => {
+      const message: TradfriDeviceRemovedMessage = {
+        topic: instanceId,
+        payload: {
+          event: 'device removed',
+          instanceId,
+        },
+      }
+      this.send(message)
+    })
+
+    this.gateway.client.on('group updated', (group) => {
+      const message: TradfriGroupUpdatedMessage = {
+        topic: group.instanceId,
+        payload: {
+          event: 'group updated',
+          instanceId: group.instanceId,
+          deviceIds: group.deviceIDs,
+          sceneId: group.sceneId,
+          name: group.name,
+          isOn: group.onOff,
+          dimmer: group.dimmer,
+          position: group.position,
+          transitionTime: group.transitionTime,
+          createdAt: new Date(group.createdAt * 1000).toISOString(),
+          trigger: group.trigger,
+        },
+      }
+      this.send(message)
+    })
+
+    this.gateway.client.on('group removed', (instanceId) => {
+      const message: TradfriGroupRemovedMessage = {
+        topic: instanceId,
+        payload: {
+          event: 'group removed',
+          instanceId,
         },
       }
       this.send(message)
