@@ -32,6 +32,9 @@ jest.mock('node-tradfri-client', () => ({
   AccessoryTypes: {
     lightbulb: 0,
   },
+  PowerSources: {
+    Unknown: 0,
+  },
   discoverGateway: mockDiscoverGateway,
   TradfriClient: mockTradfriClientConstructor,
 }))

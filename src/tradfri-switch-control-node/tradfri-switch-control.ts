@@ -1,4 +1,5 @@
 import 'core-js/es/promise/all-settled'
+import 'core-js/es/array/flat'
 import { Node, NodeAPI, NodeConstructor, NodeDef } from 'node-red'
 import * as t from 'io-ts'
 import { isLeft } from 'fp-ts/lib/Either'

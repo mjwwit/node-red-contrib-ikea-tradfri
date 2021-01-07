@@ -45,9 +45,9 @@ jest.mock('node-tradfri-client', () => ({
 }))
 
 import tradfriConfigNode from '../src/tradfri-config-node/tradfri-config'
-import tradfriStatusNode from '../src/tradfri-status-node/tradfri-status'
+import tradfriMonitorNode from '../src/tradfri-monitor-node/tradfri-monitor'
 
-describe('Tradfri switch control node', () => {
+describe('Tradfri monitor node', () => {
   afterEach(async () => {
     await helper.unload()
     jest.clearAllMocks()
@@ -68,12 +68,12 @@ describe('Tradfri switch control node', () => {
       },
       {
         id: 'n2',
-        type: 'tradfri-status',
+        type: 'tradfri-monitor',
         name: 'monitor',
         gateway: 'n1',
       },
     ]
-    await helper.load([tradfriConfigNode, tradfriStatusNode], flow, {
+    await helper.load([tradfriConfigNode, tradfriMonitorNode], flow, {
       n1: {
         identity: 'id1',
         preSharedKey: 'psk',
@@ -99,7 +99,7 @@ describe('Tradfri switch control node', () => {
       },
       {
         id: 'n2',
-        type: 'tradfri-status',
+        type: 'tradfri-monitor',
         name: 'monitor',
         gateway: 'n1',
         wires: [['n3']],
@@ -109,7 +109,7 @@ describe('Tradfri switch control node', () => {
         type: 'helper',
       },
     ]
-    await helper.load([tradfriConfigNode, tradfriStatusNode], flow, {
+    await helper.load([tradfriConfigNode, tradfriMonitorNode], flow, {
       n1: {
         identity: 'id1',
         preSharedKey: 'psk',
@@ -218,7 +218,7 @@ describe('Tradfri switch control node', () => {
       },
       {
         id: 'n2',
-        type: 'tradfri-status',
+        type: 'tradfri-monitor',
         name: 'monitor',
         gateway: 'n1',
         wires: [['n3']],
@@ -228,7 +228,7 @@ describe('Tradfri switch control node', () => {
         type: 'helper',
       },
     ]
-    await helper.load([tradfriConfigNode, tradfriStatusNode], flow, {
+    await helper.load([tradfriConfigNode, tradfriMonitorNode], flow, {
       n1: {
         identity: 'id1',
         preSharedKey: 'psk',

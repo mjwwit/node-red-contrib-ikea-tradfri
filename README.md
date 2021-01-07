@@ -1,5 +1,5 @@
 # Node-RED IKEA TRÅDFRI
-Node-RED nodes to get updates from and control devices connected to an IKEA TRADFRI gateway. This project is based on [AlCalzone](https://github.com/AlCalzone)'s excellent [node-tradfri-client](https://github.com/AlCalzone/node-tradfri-client) module, which does not utilize any compiled binaries.
+Node-RED nodes to get updates from and control devices connected to an IKEA TRÅDFRI gateway. This project is based on [AlCalzone](https://github.com/AlCalzone)'s excellent [node-tradfri-client](https://github.com/AlCalzone/node-tradfri-client) module, which does not utilize any compiled binaries.
 
 ## Installation
 ```
@@ -9,10 +9,11 @@ npm install node-red-contrib-ikea-tradfri
 Alternatively, you can install this module through the editor UI palette.
 
 ## Documentation
-This module contains 3 nodes:
+This module contains 4 nodes:
 - tradfri-config for connecting to the gateway
 - tradfri-switch-control for controlling on/off capable devices (plugs and lightbulbs)
-- tradfri-status for monitoring devices and groups
+- tradfri-monitor for monitoring devices and groups
+- tradfri-state for retrieving the current state of one or more devices and/or groups
 
 ### tradfri-config
 This node is responsible for connecting to an IKEA TRÅDFRI gateway on your network. An attempt is made to automatically discover a gateway on the network. If this is unsuccessful a valid hostname or ip-address has to be entered. You also need to enter the gateways security code, as printed on the sticker on the bottom of the gateway. As per IKEA's guidelines, this code is not stored in Node-RED, instead, only the identity and pre-shared key returned after successful authentication are stored within the node.
@@ -48,7 +49,7 @@ If both are specified, the node will pick the action (on or off) from the messag
 {}
 ```
 
-### tradfri-status
+### tradfri-monitor
 This node will send messages when a device or group is updated or removed. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
 
 Depending on the type of event, `payload.event` will have a different value.
@@ -126,7 +127,91 @@ In case of the `"device updated"` event, depending on the type of the updated de
 }
 ```
 
+### tradfri-state
+This node will retrieve the current state of one or more devices and/or groups. The output message will contain all available details for the devices and/or groups.
+
+In case of device state, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+
+
+#### Input
+```json
+{
+  "topic": [1, 2]
+}
+
+{
+  "topic": 1
+}
+
+{}
+```
+
+#### Output
+```json
+{
+  "topic": [1, 2],
+  "payload": {
+    "1": {
+      "type": "device type (lightbulb, plug, motionSensor, etc.)",
+      "instanceId": 1,
+      "name": "the human friendly device name",
+      "alive": true,
+      "lastSeen": "ISO8601 date when the device was last seen",
+      "deviceInfo": {
+        "battery": 100,
+        "firmwareVersion": "version",
+        "manufacturer": "device manufacturer",
+        "modelNumber": "model number if available",
+        "power": "power source (Battery, ACPower, Solar, etc.)",
+        "serialNumber": "device serial number if available"
+      },
+      "blind": {
+        "position": 50,
+      },
+      "lightbulb": {
+        "color": "hexadecimal rgb color string",
+        "colorTemperature": 65,
+        "dimmer": 50,
+        "hue": 0,
+        "isDimmable": true,
+        "isOn": true,
+        "saturation": 0,
+        "spectrum": "bulb color spectrum (none, white, or rgb)"
+      },
+      "sensor": {
+        "sensorType": "sensor type (motionSensor)",
+        "minRangeValue": 0,
+        "minMeasuredValue": 10,
+        "maxMeasuredValue": 90,
+        "maxRangeValue": 100,
+        "sensorValue": 25
+      },
+      "plug": {
+        "isOn": true,
+        "isSwitchable": true
+      }
+    },
+    "2": {
+      "type": "group",
+      "instanceId": 2,
+      "name": "the human friendly device name",
+      "deviceIds": [3],
+      "isOn": true,
+      "dimmer": 65,
+      "position": 0,
+      "transitionTime": 500,
+      "createdAt": "2021-01-01T12:00:00Z"
+    }
+  }
+}
+```
+
 ## Changelog
+
+### 0.3.0
+- Change node name of tradfri-status to tradfri-monitor
+- Add tradfri-state node to get the current state of one or more devices / groups
+- Include a polyfill for `Array.prototype.flat`
 
 ### 0.2.0
 - Add node status to both tradfri-status and tradfri-switch-control nodes

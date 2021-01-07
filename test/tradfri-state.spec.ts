@@ -33,7 +33,8 @@ const mockDiscoverGateway = jest
   .mockRejectedValue(new Error('Unexpected call to discoverGateway'))
 jest.mock('node-tradfri-client', () => ({
   AccessoryTypes: {
-    lightbulb: 0,
+    lightbulb: 2,
+    plug: 3,
   },
   PowerSources: {
     Unknown: 0,
@@ -43,9 +44,9 @@ jest.mock('node-tradfri-client', () => ({
 }))
 
 import tradfriConfigNode from '../src/tradfri-config-node/tradfri-config'
-import tradfriSwitchControlNode from '../src/tradfri-switch-control-node/tradfri-switch-control'
+import tradfriStateNode from '../src/tradfri-state-node/tradfri-state'
 
-describe('Tradfri switch control node', () => {
+describe('Tradfri state node', () => {
   afterEach(async () => {
     await helper.unload()
     jest.clearAllMocks()
@@ -66,15 +67,14 @@ describe('Tradfri switch control node', () => {
       },
       {
         id: 'n2',
-        type: 'tradfri-switch-control',
-        name: 'turn on light',
+        type: 'tradfri-state',
+        name: 'get state of stuff',
         gateway: 'n1',
-        action: 'on',
         accessories: [1],
         groups: [2],
       },
     ]
-    await helper.load([tradfriConfigNode, tradfriSwitchControlNode], flow, {
+    await helper.load([tradfriConfigNode, tradfriStateNode], flow, {
       n1: {
         identity: 'id1',
         preSharedKey: 'psk',
@@ -82,12 +82,11 @@ describe('Tradfri switch control node', () => {
     })
 
     const n2 = helper.getNode('n2') as any
-    expect(n2.action).toBe('on')
     expect(n2.accessories).toEqual([1])
     expect(n2.groups).toEqual([2])
   })
 
-  it('should control accessories and groups', async () => {
+  it('should get state of accessories and groups', async () => {
     mockTradfriClient.connect.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeDevices.mockResolvedValueOnce(void 0)
     mockTradfriClient.observeGroupsAndScenes.mockResolvedValueOnce(void 0)
@@ -102,15 +101,19 @@ describe('Tradfri switch control node', () => {
       },
       {
         id: 'n2',
-        type: 'tradfri-switch-control',
-        name: 'turn on light',
+        type: 'tradfri-state',
+        name: 'get state of stuff',
         gateway: 'n1',
-        action: 'on',
         accessories: ['1'],
         groups: ['2'],
+        wires: [['n3']],
+      },
+      {
+        id: 'n3',
+        type: 'helper',
       },
     ]
-    await helper.load([tradfriConfigNode, tradfriSwitchControlNode], flow, {
+    await helper.load([tradfriConfigNode, tradfriStateNode], flow, {
       n1: {
         identity: 'id1',
         preSharedKey: 'psk',
@@ -118,11 +121,7 @@ describe('Tradfri switch control node', () => {
     })
 
     const n2 = helper.getNode('n2')
-
-    const accessoryTurnOnFn = jest.fn().mockResolvedValue(true)
-    const accessoryTurnOffFn = jest.fn().mockResolvedValue(true)
-    const groupTurnOnFn = jest.fn().mockResolvedValue(true)
-    const groupTurnOffFn = jest.fn().mockResolvedValue(true)
+    const n3 = helper.getNode('n3')
 
     // Add device
     const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
@@ -137,8 +136,25 @@ describe('Tradfri switch control node', () => {
     const deviceUpdatedHandler = registerDeviceUpdatedHandlerCallArgs[1]
     deviceUpdatedHandler({
       instanceId: 1,
+      type: 2,
       name: 'ac1',
-      lightList: [{ turnOn: accessoryTurnOnFn, turnOff: accessoryTurnOffFn }],
+      alive: true,
+      lastSeen: Math.floor(Date.now() / 1000),
+      deviceInfo: {
+        power: 0,
+      },
+      lightList: [{ onOff: true }],
+    })
+    deviceUpdatedHandler({
+      instanceId: 3,
+      type: 3,
+      name: 'ac2',
+      alive: true,
+      lastSeen: Math.floor(Date.now() / 1000),
+      deviceInfo: {
+        power: 0,
+      },
+      plugList: [{ onOff: false }],
     })
 
     // Add group
@@ -155,28 +171,94 @@ describe('Tradfri switch control node', () => {
     groupUpdatedHandler({
       instanceId: 2,
       name: 'g1',
-      turnOn: groupTurnOnFn,
-      turnOff: groupTurnOffFn,
+      onOff: false,
+      deviceIDs: [3],
+      createdAt: Math.floor(Date.now() / 1000),
     })
 
-    // Turning on
+    const stateMessagePromise1 = new Promise((r) => {
+      n3.once('input', (message) => {
+        r(message)
+      })
+    })
 
-    expect(accessoryTurnOnFn).not.toHaveBeenCalled()
-    expect(groupTurnOnFn).not.toHaveBeenCalled()
-
+    // Getting state of configured accessories and groups
     n2.receive({})
 
-    expect(accessoryTurnOnFn).toHaveBeenCalledTimes(1)
-    expect(groupTurnOnFn).toHaveBeenCalledTimes(1)
+    await expect(stateMessagePromise1).resolves.toMatchObject({
+      topic: [1, 2],
+      payload: {
+        1: {
+          type: 'lightbulb',
+          instanceId: 1,
+          name: 'ac1',
+          alive: true,
+          lastSeen: expect.any(String),
+          deviceInfo: {
+            power: 'Unknown',
+          },
+          lightbulb: {
+            isOn: true,
+          },
+        },
+        2: {
+          type: 'group',
+          instanceId: 2,
+          name: 'g1',
+          isOn: false,
+          deviceIds: [3],
+          createdAt: expect.any(String),
+        },
+      },
+    })
 
-    // Turning off
+    // Also getting state of input message accessories and groups
+    const stateMessagePromise2 = new Promise((r) => {
+      n3.once('input', (message) => {
+        r(message)
+      })
+    })
 
-    expect(accessoryTurnOffFn).not.toHaveBeenCalled()
-    expect(groupTurnOffFn).not.toHaveBeenCalled()
+    n2.receive({ topic: 3 } as any)
 
-    n2.receive({ payload: 'off' } as any)
-
-    expect(accessoryTurnOffFn).toHaveBeenCalledTimes(1)
-    expect(groupTurnOffFn).toHaveBeenCalledTimes(1)
+    await expect(stateMessagePromise2).resolves.toMatchObject({
+      topic: expect.arrayContaining([1, 2, 3]),
+      payload: {
+        1: {
+          type: 'lightbulb',
+          instanceId: 1,
+          name: 'ac1',
+          alive: true,
+          lastSeen: expect.any(String),
+          deviceInfo: {
+            power: 'Unknown',
+          },
+          lightbulb: {
+            isOn: true,
+          },
+        },
+        2: {
+          type: 'group',
+          instanceId: 2,
+          name: 'g1',
+          isOn: false,
+          deviceIds: [3],
+          createdAt: expect.any(String),
+        },
+        3: {
+          type: 'plug',
+          instanceId: 3,
+          name: 'ac2',
+          alive: true,
+          lastSeen: expect.any(String),
+          deviceInfo: {
+            power: 'Unknown',
+          },
+          plug: {
+            isOn: false,
+          },
+        },
+      },
+    })
   })
 })

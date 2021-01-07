@@ -1,21 +1,66 @@
 <script type="text/javascript">
-  RED.nodes.registerType('tradfri-status',{
+  RED.nodes.registerType('tradfri-state',{
       category: 'smart home',
       color: '#a6bbcf',
       defaults: {
         gateway: { value: '', type: 'tradfri-config', required: true },
-        name: { value: '' }
+        name: { value: '' },
+        accessories: { value: [] },
+        groups: { value: [] }
       },
-      inputs: 0,
+      inputs: 1,
       outputs: 1,
-      icon: 'bridge.svg',
+      icon: 'db.svg',
       label: function () {
-          return this.name || 'tradfri-status';
+          return this.name || 'tradfri-state';
+      },
+      oneditprepare : function () {
+        const reloadAccessoriesAndGroups = (node) => {
+          $('#node-input-accessories').html('')
+          $('#node-input-groups').html('')
+
+          if (!node || node === '_ADD_') {
+            return
+          }
+
+          $.get(`/tradfri/gateway/${node}/accessories`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-accessories').append(`<option value="">None</option>`)
+            data
+              .forEach((accessory) => {
+                $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
+              })
+
+            $('#node-input-accessories').val(this.accessories)
+          });
+
+          $.get(`/tradfri/gateway/${node}/groups`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-groups').append(`<option value="">None</option>`)
+            data.forEach((group) => {
+              $('#node-input-groups').append(`<option value="${group.instanceId}">${group.name}</option>`)
+            })
+
+            $('#node-input-groups').val(this.groups)
+          });
+        }
+
+        $('#node-input-gateway').change(() => {
+          reloadAccessoriesAndGroups($('#node-input-gateway').val())
+        })
+
+        reloadAccessoriesAndGroups($('#node-input-gateway').val())
       }
   });
 </script>
 
-<script type="text/html" data-template-name="tradfri-status">
+<script type="text/html" data-template-name="tradfri-state">
   <div class="form-row">
       <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
       <input type="text" id="node-input-name" placeholder="Name">
@@ -24,45 +69,56 @@
     <label for="node-input-gateway"><i class="fa fa-server"></i> Gateway</label>
     <input type="text" id="node-input-gateway">
   </div>
+  <div class="form-row">
+    <label for="node-input-accessories"><i class="fa fa-wifi"></i> Devices</label>
+    <select id="node-input-accessories" multiple></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-groups"><i class="fa fa-object-group"></i> Groups</label>
+    <select id="node-input-groups" multiple></select>
+  </div>
 </script>
 
-<script type="text/html" data-help-name="tradfri-status">
-  <p>Emits changes in TRÅDFRI device or groups connected to a gateway.</p>
+<script type="text/html" data-help-name="tradfri-state">
+  <p>Gets current state of TRÅDFRI smart home devices and/or groups.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">topic
+      <span class="property-type">number | number[]</span>
+    </dt>
+    <dd> the instanceIds of the devices or groups to retrieve the state of.</dd>
+  </dl>
+
   <h3>Outputs</h3>
   <h4>Common</h4>
   <dl class="message-properties">
     <dt>topic
-      <span class="property-type">number</span>
+      <span class="property-type">number[]</span>
     </dt>
-    <dd> the instanceId of the device or group that was updated or removed.</dd>
+    <dd> the instanceIds of the devices and/or groups who's state was requested.</dd>
 
     <dt>payload
       <span class="property-type">Object</span>
     </dt>
-    <dd> the details of the device or group that was updated or removed.</dd>
+    <dd> the state of the devices and/or groups.</dd>
 
-    <dt>payload.event
+    <dt>payload[instanceId].type
       <span class="property-type">string</span>
     </dt>
-    <dd> the specific update event.</dd>
+    <dd> the type of the device or <code>"group"</code> in case of a group.</dd>
 
-    <dt>payload.instanceId
+    <dt>payload[instanceId].instanceId
       <span class="property-type">number</span>
     </dt>
-    <dd> the unique identifier of the device or group that was updated or removed.</dd>
+    <dd> the unique identifier of the device or group.</dd>
   </dl>
 
-  <h4>Device updated</h4>
+  <h4>Devices</h4>
   <dl class="message-properties">
-    <dt>payload.event
-      <span class="property-type">"device updated"</span>
-    </dt>
-    <dd> the specific update event.</dd>
-
     <dt>payload.type
       <span class="property-type">string</span>
     </dt>
-    <dd> the type of the device that was updated.</dd>
+    <dd> the type of the device.</dd>
 
     <dt>payload.name
       <span class="property-type">string</span>
@@ -105,20 +161,12 @@
     <dd> if the device is a plug, this object contains the plug status.</dd>
   </dl>
 
-  <h4>Device removed</h4>
+  <h4>Groups</h4>
   <dl class="message-properties">
-    <dt>payload.event
-      <span class="property-type">"device removed"</span>
+    <dt>payload.type
+      <span class="property-type">"group"</span>
     </dt>
-    <dd> the specific update event.</dd>
-  </dl>
-
-  <h4>Group updated</h4>
-  <dl class="message-properties">
-    <dt>payload.event
-      <span class="property-type">"group updated"</span>
-    </dt>
-    <dd> the specific update event.</dd>
+    <dd> indicator that this is the state of a group.</dd>
 
     <dt>payload.name
       <span class="property-type">string</span>
@@ -161,20 +209,12 @@
     <dd> ISO8601 date-time when the group was created.</dd>
   </dl>
 
-  <h4>Group removed</h4>
-  <dl class="message-properties">
-    <dt>payload.event
-      <span class="property-type">"group removed"</span>
-    </dt>
-    <dd> the specific update event.</dd>
-  </dl>
-
   <h3>Details</h3>
-  <p><code>msg.payload</code>contains the details of the device or group that was updated or removed.
-  Depending on the type of update, different properties will be set.</p>
+  <p>The devices and/or groups to retrieve state of are the union of those configured in the node and those passed in input
+  messages through <code>msg.topic</code></p>
 
   <h3>References</h3>
   <ul>
-    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-status">GitHub</a> - the nodes GitHub repository</li>
+    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-state">GitHub</a> - the nodes GitHub repository</li>
   </ul>
 </script>

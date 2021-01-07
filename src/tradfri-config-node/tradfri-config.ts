@@ -7,7 +7,7 @@ import {
   TradfriError,
   TradfriErrorCodes,
 } from 'node-tradfri-client'
-import { deviceTypeMap } from '../common/tradfri-device-type'
+import { deviceTypeMap } from '../common/tradfri-state-to-payload'
 import { TradfriConfigNode, TradfriCredentials } from './types'
 
 interface TradfriConfigNodeDef extends NodeDef {
