@@ -1,6 +1,7 @@
 import { Node, NodeAPI, NodeConstructor, NodeDef, NodeMessage } from 'node-red'
 import * as t from 'io-ts'
 import { isLeft } from 'fp-ts/lib/Either'
+import { PathReporter } from 'io-ts/lib/PathReporter'
 import { TradfriConfigNode } from '../tradfri-config-node/types'
 import { messageType } from '../common/message-type'
 import {
@@ -80,10 +81,15 @@ export = (RED: NodeAPI): void | Promise<void> => {
         inputMessage
       )
       if (isLeft(maybeStateMessage)) {
-        this.error('Invalid message received!', inputMessage)
-        return
+        this.warn(
+          `Invalid message received, using node config!\n${PathReporter.report(
+            maybeStateMessage
+          ).join('\n')}`
+        )
       }
-      const stateMessage = maybeStateMessage.right
+      const stateMessage = isLeft(maybeStateMessage)
+        ? ({} as t.TypeOf<typeof tradfriStateInputMessageType>)
+        : maybeStateMessage.right
       const instanceIds = Array.isArray(stateMessage.topic)
         ? stateMessage.topic
         : typeof stateMessage.topic === 'number'

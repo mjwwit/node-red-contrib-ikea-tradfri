@@ -208,6 +208,9 @@ In case of device state, depending on the type of the updated device one of the 
 
 ## Changelog
 
+### 0.3.1
+- Use node config when an invalid message is sent to tradfri-state or tradfri-switch-control
+
 ### 0.3.0
 - Change node name of tradfri-status to tradfri-monitor
 - Add tradfri-state node to get the current state of one or more devices / groups

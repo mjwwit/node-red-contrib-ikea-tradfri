@@ -2,6 +2,7 @@ import 'core-js/es/promise/all-settled'
 import 'core-js/es/array/flat'
 import { Node, NodeAPI, NodeConstructor, NodeDef } from 'node-red'
 import * as t from 'io-ts'
+import { PathReporter } from 'io-ts/PathReporter'
 import { isLeft } from 'fp-ts/lib/Either'
 import { TradfriConfigNode } from '../tradfri-config-node/types'
 import { messageType } from '../common/message-type'
@@ -83,10 +84,15 @@ export = (RED: NodeAPI): void | Promise<void> => {
         message
       )
       if (isLeft(maybeSwitchControlMessage)) {
-        this.error('Invalid message received!')
-        return
+        this.warn(
+          `Invalid message received, using node config!\n${PathReporter.report(
+            maybeSwitchControlMessage
+          ).join('\n')}`
+        )
       }
-      const switchControlMessage = maybeSwitchControlMessage.right
+      const switchControlMessage = isLeft(maybeSwitchControlMessage)
+        ? ({} as t.TypeOf<typeof tradfriSwitchControlMessageType>)
+        : maybeSwitchControlMessage.right
       const action = switchControlMessage.payload || this.action
       const instanceIds = Array.isArray(switchControlMessage.topic)
         ? switchControlMessage.topic

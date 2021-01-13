@@ -1,9 +1,10 @@
 {
   "name": "node-red-contrib-ikea-tradfri",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Node-RED nodes to get updates from and control devices connected to an IKEA TRADFRI gateway",
   "main": "dist/index.js",
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
     "postbuild": "cd src && cp **/*.html --parents ../dist",
     "lint": "eslint -c .eslintrc.js --ext .ts ./src",
