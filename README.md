@@ -9,11 +9,12 @@ npm install node-red-contrib-ikea-tradfri
 Alternatively, you can install this module through the editor UI palette.
 
 ## Documentation
-This module contains 4 nodes:
+This module contains 5 nodes:
 - tradfri-config for connecting to the gateway
 - tradfri-switch-control for controlling on/off capable devices (plugs and lightbulbs)
 - tradfri-monitor for monitoring devices and groups
 - tradfri-state for retrieving the current state of one or more devices and/or groups
+- tradfri-light-control for controlling dimmable and rgb lights
 
 ### tradfri-config
 This node is responsible for connecting to an IKEA TRÅDFRI gateway on your network. An attempt is made to automatically discover a gateway on the network. If this is unsuccessful a valid hostname or ip-address has to be entered. You also need to enter the gateways security code, as printed on the sticker on the bottom of the gateway. As per IKEA's guidelines, this code is not stored in Node-RED, instead, only the identity and pre-shared key returned after successful authentication are stored within the node.
@@ -206,7 +207,52 @@ In case of device state, depending on the type of the updated device one of the 
 }
 ```
 
+### tradfri-light-control
+This node is able to control lights connected to the gateway. It can do so in 2 different ways:
+
+- you can configure which specific devices and/or groups to control within the nodes configuration,
+- or you can specify these devices and/or groups in the input message passed to this node.
+
+If both are specified, the node will pick the action (on or off) from the message, but execute that action on all devices and groups given in both the node configuration and the input message. Any combination of these input message and configuration properties is also possible.
+
+The node is able to control dimmable lights, white spectrum lights, and RGB lights.
+
+#### Input
+```json
+{
+  "topic": [1, 2],
+  "payload": {
+    "onOff": true,
+    "brightness": 50
+  }
+}
+
+{
+  "topic": 1,
+  "payload": {
+    "colorTemperature": 75,
+    "brightness": 75
+  }
+}
+
+{
+  "topic": 1,
+}
+
+{
+  "payload": {
+    "color": "#ff0000",
+    "brightness": 75
+  },
+}
+
+{}
+```
+
 ## Changelog
+
+### 0.4.0
+- Add tradfri-light-control node to control dimmable and rgb lights
 
 ### 0.3.1
 - Use node config when an invalid message is sent to tradfri-state or tradfri-switch-control

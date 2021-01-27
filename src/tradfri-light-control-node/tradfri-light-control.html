@@ -1,0 +1,221 @@
+<script type="text/javascript">
+  RED.nodes.registerType('tradfri-light-control',{
+      category: 'smart home',
+      color: '#a6bbcf',
+      defaults: {
+        gateway: { value: '', type: 'tradfri-config', required: true },
+        name: { value: '' },
+        action: { value: '{}' },
+        accessories: { value: [] },
+        groups: { value: [] }
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'light.svg',
+      label: function () {
+          return this.name || 'tradfri-light-control';
+      },
+      oneditprepare : function () {
+        const reloadAccessoriesAndGroups = (node) => {
+          const action = JSON.parse($('#node-input-action').val() || '{}')
+          $('#on-off').val(action.onOff ? 'on' : action.onOff === false ? 'off' : '')
+
+          for (const input of ['brightness', 'temperature', 'color']) {
+            if (action[input] === undefined) {
+              $(`#${input}`).prop('disabled', true)
+            } else {
+              $(`#set-${input}`).prop('checked', true)
+              $(`#${input}`).val(action[input])
+            }
+            $(`#set-${input}`).on('change', (e) => {
+              if (e.target.checked) {
+                $(`#${input}`).prop('disabled', false)
+              } else {
+                $(`#${input}`).prop('disabled', true)
+              }
+            })
+          }
+
+          $('#node-input-accessories').html('')
+          $('#node-input-groups').html('')
+
+          if (!node || node === '_ADD_') {
+            return
+          }
+
+          $.get(`/tradfri/gateway/${node}/accessories`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-accessories').append(`<option value="">None</option>`)
+            data
+              .filter((accessory) => (['lightbulb'].includes(accessory.type)))
+              .forEach((accessory) => {
+                $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
+              })
+
+            $('#node-input-accessories').val(this.accessories)
+          });
+
+          $.get(`/tradfri/gateway/${node}/groups`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-groups').append(`<option value="">None</option>`)
+            data.forEach((group) => {
+              $('#node-input-groups').append(`<option value="${group.instanceId}">${group.name}</option>`)
+            })
+
+            $('#node-input-groups').val(this.groups)
+          });
+        }
+
+        $('#node-input-gateway').change(() => {
+          reloadAccessoriesAndGroups($('#node-input-gateway').val())
+        })
+
+        reloadAccessoriesAndGroups($('#node-input-gateway').val())
+      },
+      oneditsave: function () {
+        const onOff = $('#on-off').val()
+        const brightness = $('#brightness').val()
+        const temperature = $('#temperature').val()
+        const color = $('#color').val()
+
+        const setBrightness = $('#set-brightness').prop('checked')
+        const setTemperature = $('#set-temperature').prop('checked')
+        const setColor = $('#set-color').prop('checked')
+
+        const action = {
+          onOff: onOff === 'on'
+            ? true
+            : onOff === 'off'
+            ? false
+            : undefined,
+          brightness: setBrightness ? Number(brightness) : undefined,
+          temperature: setTemperature ? Number(temperature) : undefined,
+          color: setColor ? color : undefined,
+        }
+
+        $('#node-input-action').val(JSON.stringify(action))
+      }
+  });
+</script>
+
+<script type="text/html" data-template-name="tradfri-light-control">
+  <div class="form-row">
+      <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-gateway"><i class="fa fa-server"></i> Gateway</label>
+    <input type="text" id="node-input-gateway">
+  </div>
+  <div class="form-row">
+    <label for="on-off"><i class="fa fa-arrow-right"></i> On/Off</label>
+    <select id="on-off">
+      <option value=""></option>
+      <option value="on">On</option>
+      <option value="off">Off</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="set-brightness"> </label>
+    <label for="set-brightness" style="width:70%;">
+      <input type="checkbox" id="set-brightness" style="display:inline-block; width:22px; vertical-align:top;">
+      <span>Set brightness</span>
+    </label>
+  </div>
+  <div class="form-row">
+    <label for="brightness"><i class="fa fa-sun-o"></i> Brightness</label>
+    <input id="brightness" type="number" min="0" max="100">
+  </div>
+  <div class="form-row">
+    <label for="set-temperature"> </label>
+    <label for="set-temperature" style="width:70%;">
+      <input type="checkbox" id="set-temperature" style="display:inline-block; width:22px; vertical-align:top;">
+      <span>Set color temperature</span>
+    </label>
+  </div>
+  <div class="form-row">
+    <label for="temperature"><i class="fa fa-thermometer-half"></i> Temperature</label>
+    <input id="temperature" type="number" min="0" max="100" placeholder="Lower is cooler, higher is warmer">
+  </div>
+  <div class="form-row">
+    <label for="set-color"> </label>
+    <label for="set-color" style="width:70%;">
+      <input type="checkbox" id="set-color" style="display:inline-block; width:22px; vertical-align:top;">
+      <span>Set color</span>
+    </label>
+  </div>
+  <div class="form-row">
+    <label for="color"><i class="fa fa-paint-brush"></i> Color</label>
+    <input id="color" type="color">
+  </div>
+  <div class="form-row">
+    <label for="node-input-accessories"><i class="fa fa-toggle-on"></i> Switch(es)</label>
+    <select id="node-input-accessories" multiple></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-groups"><i class="fa fa-object-group"></i> Group(s)</label>
+    <select id="node-input-groups" multiple></select>
+  </div>
+  <div class="form-tips">
+    <span>
+      Tip: You cannot control the color temperature or color of a group. Select the individual lights to do so.
+    </span>
+  </div>
+  <input id="node-input-action" type="hidden">
+</script>
+
+<script type="text/html" data-help-name="tradfri-light-control">
+  <p>Controls TRÅDFRI smart home lights.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">topic
+      <span class="property-type">number | number[]</span>
+    </dt>
+    <dd> the instanceIds of the devices or groups to control.</dd>
+    <dt class="optional">payload
+      <span class="property-type">object</span>
+    </dt>
+    <dd> the operation to perform.</dd>
+    <dt class="optional">payload.onOff
+      <span class="property-type">boolean</span>
+    </dt>
+    <dd> whether the light(s) should be turned on or off.</dd>
+    <dt class="optional">payload.brightness
+      <span class="property-type">number</span>
+    </dt>
+    <dd> control dimmable lights (0-100).</dd>
+    <dt class="optional">payload.colorTemperature
+      <span class="property-type">number</span>
+    </dt>
+    <dd> control the color temperature of the light(s) (0-100) (cool-warm).</dd>
+    <dt class="optional">payload.color
+      <span class="property-type">string</span>
+    </dt>
+    <dd> control the color of rgb light(s) (<code>"#RRGGBB"</code>).</dd>
+    <dt class="optional">payload.hue
+      <span class="property-type">number</span>
+    </dt>
+    <dd> control the hue of rgb light(s) (0-360).</dd>
+    <dt class="optional">payload.saturation
+      <span class="property-type">number</span>
+    </dt>
+    <dd> control the saturation of rgb light(s) (0-100).</dd>
+  </dl>
+
+  <h3>Details</h3>
+  <p>The performed operation of the node can be controlled through the configuration or the input
+  <code>msg.payload</code> property. The input message action will override any configured action.</p>
+  <p>The devices and/or groups to control are the union of those configured in the node and those passed in input
+  messages through <code>msg.topic</code></p>
+
+  <h3>References</h3>
+  <ul>
+    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-light-control">GitHub</a> - the nodes GitHub repository</li>
+  </ul>
+</script>
