@@ -89,6 +89,16 @@ export = (RED: NodeAPI): void | Promise<void> => {
         this.error(`Unable to ping gateway! ${String(err)}`)
       })
 
+    this.on('close', () => {
+      this.gateway.client
+        .off('connection alive', setConnected)
+        .off('connection lost', setDisconnected)
+        .off('connection failed', setDisconnected)
+        .off('reconnecting', setConnecting)
+        .off('ping succeeded', setConnected)
+        .off('ping failed', setDisconnected)
+    })
+
     this.on('input', (message) => {
       const maybeLightControlMessage = tradfriLightControlMessageType.decode(
         message
@@ -103,7 +113,10 @@ export = (RED: NodeAPI): void | Promise<void> => {
       const lightControlMessage = isLeft(maybeLightControlMessage)
         ? ({} as t.TypeOf<typeof tradfriLightControlMessageType>)
         : maybeLightControlMessage.right
-      const action = lightControlMessage.payload || this.action
+      const action = {
+        ...(this.action || {}),
+        ...(lightControlMessage.payload || {}),
+      }
       const instanceIds = Array.isArray(lightControlMessage.topic)
         ? lightControlMessage.topic
         : typeof lightControlMessage.topic === 'number'
@@ -150,6 +163,8 @@ export = (RED: NodeAPI): void | Promise<void> => {
         saturation: action.saturation,
         transitionTime: action.transitionTime,
       }
+
+      this.log(`Executing operation: ${JSON.stringify(operation)}`)
 
       Promise.allSettled([
         ...Array.from(this.gateway.accessories.values())

@@ -81,6 +81,16 @@ export = (RED: NodeAPI): void | Promise<void> => {
         this.error(`Unable to ping gateway! ${String(err)}`)
       })
 
+    this.on('close', () => {
+      this.gateway.client
+        .off('connection alive', setConnected)
+        .off('connection lost', setDisconnected)
+        .off('connection failed', setDisconnected)
+        .off('reconnecting', setConnecting)
+        .off('ping succeeded', setConnected)
+        .off('ping failed', setDisconnected)
+    })
+
     this.gateway.client.on('device updated', (accessory) => {
       const message: TradfriDeviceUpdatedMessage = {
         topic: accessory.instanceId,

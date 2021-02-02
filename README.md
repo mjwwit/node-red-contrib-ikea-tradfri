@@ -251,6 +251,10 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 
 ## Changelog
 
+### 0.4.1
+- Fix combined tradfri-light-control action from input message and node configuration
+- Fix event listener memory leak
+
 ### 0.4.0
 - Add tradfri-light-control node to control dimmable and rgb lights
 

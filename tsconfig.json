@@ -7,11 +7,11 @@
     "pretty": true,
     "rootDir": "src",
     "outDir": "dist",
-    "target": "es5",
+    "target": "es2018",
     "module": "commonjs",
     "esModuleInterop": true,
     "lib": [
-      "esnext"
+      "ES2018", "ES2020.Promise", "ES2019.Array"
     ],
     "types": [
       "node"
