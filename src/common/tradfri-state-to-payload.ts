@@ -60,7 +60,7 @@ export interface TradfriDeviceState {
     manufacturer: string
     modelNumber: string
     power: PowerSource
-    serialNumber: string
+    serialNumber: number
   }
   otaUpdateState: number
   blind?: {
