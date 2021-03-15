@@ -157,7 +157,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
               this.log(`"On" action result: ${JSON.stringify(results.flat())}`)
             })
             .catch((err: Error) => {
-              this.error(`"On" action error: ${String(err)}`)
+              this.error(`"On" action error: ${String(err)}`, message)
             })
           break
         case 'off':
@@ -180,7 +180,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
               this.log(`"Off" action result: ${JSON.stringify(results.flat())}`)
             })
             .catch((err: Error) => {
-              this.error(`"Off" action error: ${String(err)}`)
+              this.error(`"Off" action error: ${String(err)}`, message)
             })
           break
         default:

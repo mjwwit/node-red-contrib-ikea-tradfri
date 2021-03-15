@@ -74,7 +74,7 @@ In case of the `"device updated"` event, depending on the type of the updated de
       "manufacturer": "device manufacturer",
       "modelNumber": "model number if available",
       "power": "power source (Battery, ACPower, Solar, etc.)",
-      "serialNumber": "device serial number if available"
+      "serialNumber": "device serial number if available (numeric)"
     },
     "blind": {
       "position": 50,
@@ -250,6 +250,9 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 ```
 
 ## Changelog
+
+### 0.4.2
+- Improve error reporting
 
 ### 0.4.1
 - Fix combined tradfri-light-control action from input message and node configuration

@@ -184,7 +184,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
           this.log(`Light action result: ${JSON.stringify(results)}`)
         })
         .catch((err: Error) => {
-          this.error(`Light action error: ${String(err)}`)
+          this.error(`Light action error: ${String(err)}`, message)
         })
     })
   }

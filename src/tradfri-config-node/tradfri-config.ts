@@ -87,7 +87,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
         this.error(
           `An error occurred while connecting with the TRADFRI gateway: ${
             TRADFRI_ERROR_CODES[e.code]
-          }`
+          }\n${e.message}`
         )
       })
   }
