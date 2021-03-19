@@ -23,7 +23,7 @@
             return
           }
 
-          $.get(`/tradfri/gateway/${node}/accessories`, (data) => {
+          $.getJSON(`tradfri/gateway/${node}/accessories`, (data) => {
             if (!Array.isArray(data)) {
               return
             }
@@ -37,7 +37,7 @@
             $('#node-input-accessories').val(this.accessories)
           });
 
-          $.get(`/tradfri/gateway/${node}/groups`, (data) => {
+          $.getJSON(`tradfri/gateway/${node}/groups`, (data) => {
             if (!Array.isArray(data)) {
               return
             }

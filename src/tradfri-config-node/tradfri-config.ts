@@ -100,6 +100,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
           .json(gateway ? gateway.host || gateway.addresses[0] : null)
       })
       .catch((e: Error) => {
+        RED.log.error(`Unable to discover Gateway: ${e.message}`)
         res.status(500).json({
           ...e,
           name: e.name,
@@ -129,6 +130,9 @@ export = (RED: NodeAPI): void | Promise<void> => {
           })
         })
         .catch((e: Error) => {
+          RED.log.error(
+            `Unable to authenticate with Gateway ${req.params.address}: ${e.message}!`
+          )
           res.status(500).json({
             ...e,
             name: e.name,

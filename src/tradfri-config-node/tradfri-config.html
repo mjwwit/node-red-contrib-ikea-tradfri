@@ -30,7 +30,7 @@
       setHover($('#node-config-input-identity'),'This value will be automatically filled in after authentication succeeds');
       setHover($('#node-config-input-preSharedKey'),'This value will be automatically filled in after authentication succeeds');
 
-      $.get('/tradfri/gateway', (data) => {
+      $.getJSON('tradfri/gateway', (data) => {
         if (data === null) {
           return
         }
@@ -47,15 +47,20 @@
         const securityCode = $('#node-config-input-securityCode').val()
         const gatewayHost = $('#node-config-input-gatewayHost').val()
         if (!securityCode || !gatewayHost) {
-          // TODO: Show error
+          $('#tradfri-error')
+            .text('Please enter both the gateway host and the security code!')
+            .css('visibility', 'visible')
           return
         }
 
-        $.post(`/tradfri/gateway/${gatewayHost}/authenticate`, { securityCode }, (data) => {
-          // TODO: Handle error
+        $.post(`tradfri/gateway/${gatewayHost}/authenticate`, { securityCode }, (data) => {
           const { identity, preSharedKey } = data
           $('#node-config-input-identity').val(identity)
           $('#node-config-input-preSharedKey').val(preSharedKey)
+        }).fail((response) => {
+          $('#tradfri-error')
+            .html(`Unable to authenticate with the gateway!<br>Error: ${(response.responseJSON && response.responseJSON.message) || response.responseText}`)
+            .css('visibility', 'visible')
         })
       })
     }
@@ -93,6 +98,9 @@
     <input type="text" disabled id="node-config-input-preSharedKey" placeholder="Automatically filled after authentication">
   </div>
   <div class="form-row">
-      <i style="font-size: 95%; color: #E9967A;"><span id="tradfri-help"></span></i>
+    <i style="font-size: 95%; color: #E9967A;"><span id="tradfri-help"></span></i>
+  </div>
+  <div class="form-row">
+    <span style="display: block; border-radius: 3px; padding: 1em; background-color: #ff999999; border: 1px solid red; visibility: hidden;" id="tradfri-error"></span>
   </div>
 </script>

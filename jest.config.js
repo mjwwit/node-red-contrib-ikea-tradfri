@@ -4,12 +4,12 @@ module.exports = {
     "<rootDir>/test/",
   ],
   testMatch: [
-    "**/test/**/*.spec.ts",
+    "<rootDir>/test/**/*.spec.ts",
   ],
   collectCoverageFrom: [
-    "**/src/**/*",
-    "!**/node_modules/**",
-    "!**/test/**"
+    "<rootDir>/src/**/*",
+    "!<rootDir>/node_modules/**",
+    "!<rootDir>/test/**"
   ],
   globals: {
     'ts-jest': {

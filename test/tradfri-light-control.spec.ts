@@ -189,14 +189,14 @@ describe('Tradfri light control node', () => {
         name: 'ac1',
         type: 0,
       },
-      { onOff: false, colorTemperature: 0 }
+      { onOff: false, colorTemperature: 0, dimmer: 50 }
     )
     expect(mockTradfriClient.operateGroup).toHaveBeenCalledWith(
       {
         instanceId: 2,
         name: 'g1',
       },
-      { onOff: false, colorTemperature: 0 }
+      { onOff: false, colorTemperature: 0, dimmer: 50 }
     )
   })
 })
