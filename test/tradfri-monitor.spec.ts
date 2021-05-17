@@ -119,10 +119,11 @@ describe('Tradfri monitor node', () => {
     const n3 = helper.getNode('n3')
 
     // Add device
-    const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'device updated'
-    )
+    const registerDeviceUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'device updated'
+      )
     if (!registerDeviceUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -175,10 +176,11 @@ describe('Tradfri monitor node', () => {
     })
 
     // Remove device
-    const registerDeviceRemovedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device removed', (accessoryId: number) => void] =>
-        Array.isArray(call) && call[0] === 'device removed'
-    )
+    const registerDeviceRemovedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device removed', (accessoryId: number) => void] =>
+          Array.isArray(call) && call[0] === 'device removed'
+      )
     if (!registerDeviceRemovedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device removed"')
@@ -238,10 +240,11 @@ describe('Tradfri monitor node', () => {
     const n3 = helper.getNode('n3')
 
     // Add group
-    const registerGroupUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'group updated'
-    )
+    const registerGroupUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'group updated'
+      )
     if (!registerGroupUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "group updated"')
@@ -280,10 +283,11 @@ describe('Tradfri monitor node', () => {
     })
 
     // Remove group
-    const registerGroupRemovedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group removed', (accessoryId: number) => void] =>
-        Array.isArray(call) && call[0] === 'group removed'
-    )
+    const registerGroupRemovedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group removed', (accessoryId: number) => void] =>
+          Array.isArray(call) && call[0] === 'group removed'
+      )
     if (!registerGroupRemovedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "group removed"')

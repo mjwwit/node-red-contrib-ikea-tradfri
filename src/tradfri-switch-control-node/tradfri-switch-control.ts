@@ -90,9 +90,8 @@ export = (RED: NodeAPI): void | Promise<void> => {
     })
 
     this.on('input', (message) => {
-      const maybeSwitchControlMessage = tradfriSwitchControlMessageType.decode(
-        message
-      )
+      const maybeSwitchControlMessage =
+        tradfriSwitchControlMessageType.decode(message)
       if (isLeft(maybeSwitchControlMessage)) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(

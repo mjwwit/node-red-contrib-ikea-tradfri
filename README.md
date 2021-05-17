@@ -251,6 +251,9 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 
 ## Changelog
 
+### 0.4.4
+- Fix issue where setting colorTemperature or color of lights turns off lights
+
 ### 0.4.3
 - Add feedback for errors during gateway authentication
 - Fix issue where authentication failed when Node-RED was hosted on a custom path

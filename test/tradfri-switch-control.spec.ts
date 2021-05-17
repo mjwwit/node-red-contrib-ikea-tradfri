@@ -125,10 +125,11 @@ describe('Tradfri switch control node', () => {
     const groupTurnOffFn = jest.fn().mockResolvedValue(true)
 
     // Add device
-    const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'device updated'
-    )
+    const registerDeviceUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'device updated'
+      )
     if (!registerDeviceUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -142,10 +143,11 @@ describe('Tradfri switch control node', () => {
     })
 
     // Add group
-    const registerGroupUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'group updated'
-    )
+    const registerGroupUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'group updated'
+      )
     if (!registerGroupUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')

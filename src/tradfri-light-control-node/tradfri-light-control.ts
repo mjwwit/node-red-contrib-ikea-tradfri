@@ -100,9 +100,8 @@ export = (RED: NodeAPI): void | Promise<void> => {
     })
 
     this.on('input', (message) => {
-      const maybeLightControlMessage = tradfriLightControlMessageType.decode(
-        message
-      )
+      const maybeLightControlMessage =
+        tradfriLightControlMessageType.decode(message)
       if (isLeft(maybeLightControlMessage)) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(
@@ -152,7 +151,11 @@ export = (RED: NodeAPI): void | Promise<void> => {
       )
 
       const operation: LightOperation = {
-        onOff: action.onOff,
+        onOff:
+          action.onOff !== false &&
+          (action.colorTemperature !== undefined || action.color !== undefined)
+            ? true
+            : action.onOff,
         dimmer: action.brightness,
         color:
           action.color && action.color.startsWith('#')

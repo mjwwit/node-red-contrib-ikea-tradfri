@@ -124,10 +124,11 @@ describe('Tradfri light control node', () => {
     const n2 = helper.getNode('n2')
 
     // Add device
-    const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'device updated'
-    )
+    const registerDeviceUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'device updated'
+      )
     if (!registerDeviceUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -141,10 +142,11 @@ describe('Tradfri light control node', () => {
     })
 
     // Add group
-    const registerGroupUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'group updated'
-    )
+    const registerGroupUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'group updated'
+      )
     if (!registerGroupUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -169,14 +171,14 @@ describe('Tradfri light control node', () => {
         name: 'ac1',
         type: 0,
       },
-      { dimmer: 50 }
+      expect.objectContaining({ dimmer: 50 })
     )
     expect(mockTradfriClient.operateGroup).toHaveBeenCalledWith(
       {
         instanceId: 2,
         name: 'g1',
       },
-      { dimmer: 50 }
+      expect.objectContaining({ dimmer: 50 })
     )
 
     // Turning off
@@ -189,14 +191,14 @@ describe('Tradfri light control node', () => {
         name: 'ac1',
         type: 0,
       },
-      { onOff: false, colorTemperature: 0, dimmer: 50 }
+      expect.objectContaining({ onOff: false, colorTemperature: 0, dimmer: 50 })
     )
     expect(mockTradfriClient.operateGroup).toHaveBeenCalledWith(
       {
         instanceId: 2,
         name: 'g1',
       },
-      { onOff: false, colorTemperature: 0, dimmer: 50 }
+      expect.objectContaining({ onOff: false, colorTemperature: 0, dimmer: 50 })
     )
   })
 })

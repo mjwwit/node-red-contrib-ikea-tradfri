@@ -87,9 +87,8 @@ export = (RED: NodeAPI): void | Promise<void> => {
     })
 
     this.on('input', (inputMessage) => {
-      const maybeStateMessage = tradfriStateInputMessageType.decode(
-        inputMessage
-      )
+      const maybeStateMessage =
+        tradfriStateInputMessageType.decode(inputMessage)
       if (isLeft(maybeStateMessage)) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(

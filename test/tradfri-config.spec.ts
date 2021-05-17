@@ -106,10 +106,11 @@ describe('Tradfri config node', () => {
     expect(n1.groups.size).toBe(0)
 
     // Device updated
-    const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'device updated'
-    )
+    const registerDeviceUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'device updated'
+      )
     if (!registerDeviceUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -122,10 +123,11 @@ describe('Tradfri config node', () => {
     expect(n1.accessories.get(1)).toEqual({ instanceId: 1, name: 'ac1' })
 
     // Group updated
-    const registerGroupUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'group updated'
-    )
+    const registerGroupUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'group updated'
+      )
     if (!registerGroupUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -174,10 +176,11 @@ describe('Tradfri config node', () => {
       .expect(201, JSON.stringify({ identity: 'id2', preSharedKey: 'psk2' }))
 
     // Get accessories
-    const registerDeviceUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['device updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'device updated'
-    )
+    const registerDeviceUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['device updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'device updated'
+      )
     if (!registerDeviceUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
@@ -194,10 +197,11 @@ describe('Tradfri config node', () => {
       )
 
     // Get groups
-    const registerGroupUpdatedHandlerCallArgs = mockTradfriClient.on.mock.calls.find(
-      (call): call is ['group updated', (accessory: any) => void] =>
-        Array.isArray(call) && call[0] === 'group updated'
-    )
+    const registerGroupUpdatedHandlerCallArgs =
+      mockTradfriClient.on.mock.calls.find(
+        (call): call is ['group updated', (accessory: any) => void] =>
+          Array.isArray(call) && call[0] === 'group updated'
+      )
     if (!registerGroupUpdatedHandlerCallArgs) {
       return fail(
         new Error('No call found to client.on for event "device updated"')
