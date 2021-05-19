@@ -153,7 +153,9 @@ export = (RED: NodeAPI): void | Promise<void> => {
       const operation: LightOperation = {
         onOff:
           action.onOff !== false &&
-          (action.colorTemperature !== undefined || action.color !== undefined)
+          (action.colorTemperature !== undefined ||
+            action.color !== undefined ||
+            action.brightness !== undefined)
             ? true
             : action.onOff,
         dimmer: action.brightness,
