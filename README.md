@@ -251,6 +251,9 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 
 ## Changelog
 
+### 0.4.6
+- Fix issue with setting colorTemperature through node config not working
+
 ### 0.4.5
 - Fix issue where setting brightness of lights turns them off
 
