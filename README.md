@@ -251,6 +251,9 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 
 ## Changelog
 
+### 0.4.7
+- Add support for TRADFRI Gateway version 1.15.34
+
 ### 0.4.6
 - Fix issue with setting colorTemperature through node config not working
 
