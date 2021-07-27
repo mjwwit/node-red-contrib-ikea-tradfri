@@ -251,6 +251,10 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 
 ## Changelog
 
+### 0.4.8
+- Fix issue with RGB bulbs always turning white when changing color
+- Fix issue with RGB bulbs not remembering their color when turning on
+
 ### 0.4.7
 - Add support for TRADFRI Gateway version 1.15.34
 

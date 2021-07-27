@@ -151,22 +151,25 @@ export = (RED: NodeAPI): void | Promise<void> => {
       )
 
       const operation: LightOperation = {
-        onOff:
-          action.onOff !== false &&
-          (action.colorTemperature !== undefined ||
-            action.color !== undefined ||
-            action.brightness !== undefined)
-            ? true
-            : action.onOff,
+        onOff: action.onOff,
         dimmer: action.brightness,
-        color:
-          action.color && action.color.startsWith('#')
-            ? action.color.slice(1)
-            : action.color,
+        color: action.color
+          ? (action.color.startsWith('#')
+              ? action.color.slice(1)
+              : action.color
+            ).toUpperCase()
+          : undefined,
         colorTemperature: action.colorTemperature,
         hue: action.hue,
         saturation: action.saturation,
         transitionTime: action.transitionTime,
+      }
+
+      // We need to delete all the properties we do not use
+      for (const key of Object.keys(operation) as (keyof LightOperation)[]) {
+        if (operation[key] === undefined) {
+          delete operation[key]
+        }
       }
 
       this.log(`Executing operation: ${JSON.stringify(operation)}`)
