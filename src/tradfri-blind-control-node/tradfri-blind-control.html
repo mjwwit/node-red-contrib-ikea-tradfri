@@ -1,0 +1,198 @@
+<script type="text/javascript">
+  RED.nodes.registerType('tradfri-blind-control',{
+      category: 'smart home',
+      color: '#a6bbcf',
+      defaults: {
+        gateway: { value: '', type: 'tradfri-config', required: true },
+        name: { value: '' },
+        action: { value: '{}' },
+        accessories: { value: [] },
+        groups: { value: [] }
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'font-awesome/fa-arrows-v',
+      label: function () {
+          return this.name || 'tradfri-blind-control';
+      },
+      oneditprepare : function () {
+        const action = JSON.parse($('#node-input-action').val() || '{}')
+        $('#operation').val(action.operation || '')
+
+        if (action.operation !== 'setPosition') {
+          $(`#set-position`)
+            .prop('checked', false)
+            .prop('disabled', true)
+          $(`#position`)
+            .val('')
+            .prop('disabled', true)
+        }
+
+        for (const input of ['position']) {
+          if (action[input] === undefined) {
+            $(`#${input}`).prop('disabled', true)
+          } else {
+            $(`#set-${input}`).prop('checked', true)
+            $(`#${input}`).val(action[input])
+          }
+          $(`#set-${input}`).on('change', (e) => {
+            if (e.target.checked) {
+              $(`#${input}`).prop('disabled', false)
+            } else {
+              $(`#${input}`).prop('disabled', true)
+            }
+          })
+        }
+
+        $('#operation').on('change', (e) => {
+          if (e.target.value !== 'setPosition') {
+            $(`#set-position`)
+              .prop('checked', false)
+              .prop('disabled', true)
+            $(`#position`)
+              .val('')
+              .prop('disabled', true)
+          } else {
+            $(`#set-position`)
+              .prop('disabled', false)
+            $(`#position`)
+              .prop('disabled', false)
+          }
+        })
+
+        const reloadAccessoriesAndGroups = (node) => {
+          $('#node-input-accessories').html('')
+          $('#node-input-groups').html('')
+
+          if (!node || node === '_ADD_') {
+            return
+          }
+
+          $.getJSON(`tradfri/gateway/${node}/accessories`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-accessories').append(`<option value="">None</option>`)
+            data
+              .filter((accessory) => (['blind'].includes(accessory.type)))
+              .forEach((accessory) => {
+                $('#node-input-accessories').append(`<option value="${accessory.instanceId}">${accessory.name}</option>`)
+              })
+
+            $('#node-input-accessories').val(this.accessories)
+          });
+
+          $.getJSON(`tradfri/gateway/${node}/groups`, (data) => {
+            if (!Array.isArray(data)) {
+              return
+            }
+
+            $('#node-input-groups').append(`<option value="">None</option>`)
+            data.forEach((group) => {
+              $('#node-input-groups').append(`<option value="${group.instanceId}">${group.name}</option>`)
+            })
+
+            $('#node-input-groups').val(this.groups)
+          });
+        }
+
+        $('#node-input-gateway').change(() => {
+          reloadAccessoriesAndGroups($('#node-input-gateway').val())
+        })
+
+        reloadAccessoriesAndGroups($('#node-input-gateway').val())
+      },
+      oneditsave: function () {
+        const operation = $('#operation').val()
+        const position = $('#position').val()
+
+        const setPosition = $('#set-position').prop('checked')
+
+        const action = {
+          operation: operation === '' ? undefined : operation,
+          position: setPosition && operation === 'setPosition' ? Number(position) : undefined,
+        }
+
+        $('#node-input-action').val(JSON.stringify(action))
+      }
+  });
+</script>
+
+<script type="text/html" data-template-name="tradfri-blind-control">
+  <div class="form-row">
+      <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-gateway"><i class="fa fa-server"></i> Gateway</label>
+    <input type="text" id="node-input-gateway">
+  </div>
+  <div class="form-row">
+    <label for="operation"><i class="fa fa-arrow-right"></i> Operation</label>
+    <select id="operation">
+      <option value=""></option>
+      <option value="setPosition">Set position</option>
+      <option value="stop">Stop</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="set-position"> </label>
+    <label for="set-position" style="width:70%;">
+      <input type="checkbox" id="set-position" style="display:inline-block; width:22px; vertical-align:top;">
+      <span>Set position</span>
+    </label>
+  </div>
+  <div class="form-row">
+    <label for="position"><i class="fa fa-sliders"></i> Position</label>
+    <input id="position" type="number" min="0" max="100">
+  </div>
+  <div class="form-tips">
+    <span>
+      Tip: Position 100 is open, 0 is closed.
+    </span>
+  </div>
+  <div class="form-row" style="margin-top: 1em;">
+    <label for="node-input-accessories"><i class="fa fa-arrows-v"></i> Blind(s)</label>
+    <select id="node-input-accessories" multiple></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-groups"><i class="fa fa-object-group"></i> Group(s)</label>
+    <select id="node-input-groups" multiple></select>
+  </div>
+  <input id="node-input-action" type="hidden">
+</script>
+
+<script type="text/html" data-help-name="tradfri-blind-control">
+  <p>Controls TRÅDFRI smart home blinds.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">topic
+      <span class="property-type">number | number[]</span>
+    </dt>
+    <dd> the instanceIds of the devices or groups to control.</dd>
+    <dt class="optional">payload
+      <span class="property-type">object</span>
+    </dt>
+    <dd> the action to perform.</dd>
+    <dt class="optional">payload.operation
+      <span class="property-type">'setPosition' | 'stop'</span>
+    </dt>
+    <dd> the blind operation to execute.</dd>
+    <dt class="optional">payload.position
+      <span class="property-type">number</span>
+    </dt>
+    <dd> set the blind position (0-100) if operation is 'setPosition'.</dd>
+  </dl>
+
+  <h3>Details</h3>
+  <p>The performed operation of the node can be controlled through the configuration or the input
+  <code>msg.payload</code> property. The input message action will override any configured action.</p>
+  <p>The devices and/or groups to control are the union of those configured in the node and those passed in input
+  messages through <code>msg.topic</code></p>
+
+  <h3>References</h3>
+  <ul>
+    <li><a href="https://github.com/mjwwit/node-red-contrib-ikea-tradfri#tradfri-blind-control">GitHub</a> - the nodes GitHub repository</li>
+  </ul>
+</script>

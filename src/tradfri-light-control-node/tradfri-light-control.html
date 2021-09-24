@@ -16,26 +16,26 @@
           return this.name || 'tradfri-light-control';
       },
       oneditprepare : function () {
-        const reloadAccessoriesAndGroups = (node) => {
-          const action = JSON.parse($('#node-input-action').val() || '{}')
-          $('#on-off').val(action.onOff ? 'on' : action.onOff === false ? 'off' : '')
+        const action = JSON.parse($('#node-input-action').val() || '{}')
+        $('#on-off').val(action.onOff ? 'on' : action.onOff === false ? 'off' : '')
 
-          for (const input of ['brightness', 'temperature', 'color']) {
-            if (action[input] === undefined) {
-              $(`#${input}`).prop('disabled', true)
-            } else {
-              $(`#set-${input}`).prop('checked', true)
-              $(`#${input}`).val(action[input])
-            }
-            $(`#set-${input}`).on('change', (e) => {
-              if (e.target.checked) {
-                $(`#${input}`).prop('disabled', false)
-              } else {
-                $(`#${input}`).prop('disabled', true)
-              }
-            })
+        for (const input of ['brightness', 'temperature', 'color']) {
+          if (action[input] === undefined) {
+            $(`#${input}`).prop('disabled', true)
+          } else {
+            $(`#set-${input}`).prop('checked', true)
+            $(`#${input}`).val(action[input])
           }
+          $(`#set-${input}`).on('change', (e) => {
+            if (e.target.checked) {
+              $(`#${input}`).prop('disabled', false)
+            } else {
+              $(`#${input}`).prop('disabled', true)
+            }
+          })
+        }
 
+        const reloadAccessoriesAndGroups = (node) => {
           $('#node-input-accessories').html('')
           $('#node-input-groups').html('')
 
@@ -155,7 +155,7 @@
     <input id="color" type="color">
   </div>
   <div class="form-row">
-    <label for="node-input-accessories"><i class="fa fa-toggle-on"></i> Switch(es)</label>
+    <label for="node-input-accessories"><i class="fa fa-lightbulb-o"></i> Light(s)</label>
     <select id="node-input-accessories" multiple></select>
   </div>
   <div class="form-row">

@@ -249,7 +249,51 @@ The node is able to control dimmable lights, white spectrum lights, and RGB ligh
 {}
 ```
 
+### tradfri-blind-control
+This node is able to control blinds connected to the gateway. It can do so in 2 different ways:
+
+- you can configure which specific devices and/or groups to control within the nodes configuration,
+- or you can specify these devices and/or groups in the input message passed to this node.
+
+If both are specified, the node will pick the operation from the message, but execute that action on all devices and groups given in both the node configuration and the input message. Any combination of these input message and configuration properties is also possible.
+
+The node is able to control smart blinds.
+
+#### Input
+```json
+{
+  "topic": [1, 2],
+  "payload": {
+    "operation": "setPosition",
+    "position": 50
+  }
+}
+
+{
+  "topic": 1,
+  "payload": {
+    "operation": "stop"
+  }
+}
+
+{
+  "topic": 1,
+}
+
+{
+  "payload": {
+    "operation": "setPosition"
+  },
+}
+
+{}
+```
+
 ## Changelog
+
+### 0.5.0
+- Add tradfri-blind-control node to control window blinds
+- Dropped support for Node.js 10 (minimum is now 12)
 
 ### 0.4.8
 - Fix issue with RGB bulbs always turning white when changing color

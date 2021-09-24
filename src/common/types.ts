@@ -28,3 +28,12 @@ export const saturationType = t.brand(
     n >= 0 && n <= 100,
   'Saturation'
 )
+
+export interface BlindPositionBrand {
+  readonly BlindPosition: unique symbol
+}
+export const blindPositionType = t.brand(
+  t.number,
+  (n): n is t.Branded<number, BlindPositionBrand> => n >= 0 && n <= 100,
+  'BlindPosition'
+)
