@@ -57,7 +57,7 @@ This node will send messages when a device or group is updated or removed. Examp
 
 Depending on the type of event, `payload.event` will have a different value.
 
-In case of the `"device updated"` event, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+In case of the `"device updated"` event, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`. The event contains meaningful data in case of lightbulbs, plugs and blinds while air purifiers, remotes, motion sensors, signal repeaters and sound remotes are not yet fully supported.
 
 #### Output
 ```json
@@ -133,7 +133,7 @@ In case of the `"device updated"` event, depending on the type of the updated de
 ### tradfri-state
 This node will retrieve the current state of one or more devices and/or groups. The output message will contain all available details for the devices and/or groups.
 
-In case of device state, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+In case of device state, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`. The event contains meaningful data in case of lightbulbs, plugs and blinds while air purifiers, remotes, motion sensors, signal repeaters and sound remotes are not yet fully supported.
 
 
 #### Input
