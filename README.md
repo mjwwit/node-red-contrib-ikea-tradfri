@@ -290,6 +290,9 @@ The node is able to control smart blinds.
 ```
 
 ## Changelog
+### 0.6.0
+- Add toggles to node configurations to disable input message validation warning logs
+- Add state/monitoring support for air purifiers
 
 ### 0.5.0
 - Add tradfri-blind-control node to control window blinds

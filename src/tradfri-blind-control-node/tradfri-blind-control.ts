@@ -24,6 +24,7 @@ interface TradfriBlindControlNode extends Node<Record<string, never>> {
   action?: TradfriBlindControlAction
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 interface TradfriBlindControlNodeDef extends NodeDef {
@@ -31,6 +32,7 @@ interface TradfriBlindControlNodeDef extends NodeDef {
   action?: string
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 const tradfriBlindControlMessageType = t.intersection(
@@ -57,6 +59,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.action = nodeDef.action ? JSON.parse(nodeDef.action) : {}
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
+    this.logInputErrors = nodeDef.logInputErrors
 
     const setConnected = () => {
       this.status({ fill: 'green', shape: 'dot', text: 'connected' })
@@ -97,7 +100,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.on('input', (message) => {
       const maybeBlindControlMessage =
         tradfriBlindControlMessageType.decode(message)
-      if (isLeft(maybeBlindControlMessage)) {
+      if (isLeft(maybeBlindControlMessage) && this.logInputErrors) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(
             maybeBlindControlMessage

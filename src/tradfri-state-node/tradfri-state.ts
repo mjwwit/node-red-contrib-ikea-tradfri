@@ -15,12 +15,14 @@ interface TradfriStateNode extends Node<Record<string, never>> {
   gateway: TradfriConfigNode
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 interface TradfriStateNodeDef extends NodeDef {
   gateway: string
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 const tradfriStateInputMessageType = t.intersection(
@@ -49,6 +51,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.gateway = RED.nodes.getNode(nodeDef.gateway) as TradfriConfigNode
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
+    this.logInputErrors = nodeDef.logInputErrors
 
     const setConnected = () => {
       this.status({ fill: 'green', shape: 'dot', text: 'connected' })
@@ -89,7 +92,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.on('input', (inputMessage) => {
       const maybeStateMessage =
         tradfriStateInputMessageType.decode(inputMessage)
-      if (isLeft(maybeStateMessage)) {
+      if (isLeft(maybeStateMessage) && this.logInputErrors) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(
             maybeStateMessage

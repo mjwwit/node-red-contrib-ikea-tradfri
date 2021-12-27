@@ -29,6 +29,7 @@ interface TradfriLightControlNode extends Node<Record<string, never>> {
   action?: TradfriLightControlAction
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 interface TradfriLightControlNodeDef extends NodeDef {
@@ -36,6 +37,7 @@ interface TradfriLightControlNodeDef extends NodeDef {
   action?: string
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 const tradfriLightControlMessageType = t.intersection(
@@ -62,6 +64,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.action = nodeDef.action ? JSON.parse(nodeDef.action) : {}
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
+    this.logInputErrors = nodeDef.logInputErrors
 
     const setConnected = () => {
       this.status({ fill: 'green', shape: 'dot', text: 'connected' })
@@ -102,7 +105,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.on('input', (message) => {
       const maybeLightControlMessage =
         tradfriLightControlMessageType.decode(message)
-      if (isLeft(maybeLightControlMessage)) {
+      if (isLeft(maybeLightControlMessage) && this.logInputErrors) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(
             maybeLightControlMessage

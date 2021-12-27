@@ -7,13 +7,14 @@
         name: { value: '' },
         action: { value: '{}' },
         accessories: { value: [] },
-        groups: { value: [] }
+        groups: { value: [] },
+        logInputErrors: { value: true },
       },
       inputs: 1,
       outputs: 0,
       icon: 'font-awesome/fa-arrows-v',
       label: function () {
-          return this.name || 'tradfri-blind-control';
+          return this.name || 'tradfri-blind-control'
       },
       oneditprepare : function () {
         const action = JSON.parse($('#node-input-action').val() || '{}')
@@ -159,6 +160,18 @@
   <div class="form-row">
     <label for="node-input-groups"><i class="fa fa-object-group"></i> Group(s)</label>
     <select id="node-input-groups" multiple></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-logInputErrors"> </label>
+    <label for="node-input-logInputErrors" style="width:70%;">
+      <input type="checkbox" id="node-input-logInputErrors" style="display:inline-block; width:22px; vertical-align:top;">
+      <span>Log input message errors</span>
+    </label>
+  </div>
+  <div class="form-tips">
+    <span>
+      Tip: Input message validation errors/warnings are logged by default, but this behavior can be changed.
+    </span>
   </div>
   <input id="node-input-action" type="hidden">
 </script>

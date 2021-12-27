@@ -20,6 +20,7 @@ interface TradfriSwitchControlNode extends Node<Record<string, never>> {
   action?: TradfriSwitchControlAction
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 interface TradfriSwitchControlNodeDef extends NodeDef {
@@ -27,6 +28,7 @@ interface TradfriSwitchControlNodeDef extends NodeDef {
   action?: TradfriSwitchControlAction
   accessories?: number[]
   groups?: number[]
+  logInputErrors: boolean
 }
 
 const tradfriSwitchControlMessageType = t.intersection(
@@ -52,6 +54,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.action = nodeDef.action
     this.accessories = nodeDef.accessories?.map((id) => Number(id))
     this.groups = nodeDef.groups?.map((id) => Number(id))
+    this.logInputErrors = nodeDef.logInputErrors
 
     const setConnected = () => {
       this.status({ fill: 'green', shape: 'dot', text: 'connected' })
@@ -92,7 +95,7 @@ export = (RED: NodeAPI): void | Promise<void> => {
     this.on('input', (message) => {
       const maybeSwitchControlMessage =
         tradfriSwitchControlMessageType.decode(message)
-      if (isLeft(maybeSwitchControlMessage)) {
+      if (isLeft(maybeSwitchControlMessage) && this.logInputErrors) {
         this.warn(
           `Invalid message received, using node config!\n${PathReporter.report(
             maybeSwitchControlMessage
