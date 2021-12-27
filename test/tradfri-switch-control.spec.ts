@@ -176,7 +176,7 @@ describe('Tradfri switch control node', () => {
     expect(accessoryTurnOffFn).not.toHaveBeenCalled()
     expect(groupTurnOffFn).not.toHaveBeenCalled()
 
-    n2.receive({ payload: 'off' } as any)
+    n2.receive({ payload: 'off' })
 
     expect(accessoryTurnOffFn).toHaveBeenCalledTimes(1)
     expect(groupTurnOffFn).toHaveBeenCalledTimes(1)

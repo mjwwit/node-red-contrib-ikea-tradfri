@@ -183,7 +183,7 @@ describe('Tradfri light control node', () => {
 
     // Turning off
 
-    n2.receive({ payload: { onOff: false, colorTemperature: 0 } } as any)
+    n2.receive({ payload: { onOff: false, colorTemperature: 0 } })
 
     expect(mockTradfriClient.operateLight).toHaveBeenCalledWith(
       {

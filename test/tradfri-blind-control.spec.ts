@@ -183,7 +183,7 @@ describe('Tradfri light control node', () => {
 
     // Stopping
 
-    n2.receive({ payload: { operation: 'stop' } } as any)
+    n2.receive({ payload: { operation: 'stop' } })
 
     expect(mockTradfriClient.operateBlind).toHaveBeenCalledWith(
       {

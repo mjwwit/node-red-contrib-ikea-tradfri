@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { NodeMessage } from 'node-red'
 import helper from 'node-red-node-test-helper'
 
 const mockTradfriClient: {
@@ -221,7 +222,7 @@ describe('Tradfri state node', () => {
       })
     })
 
-    n2.receive({ topic: 3 } as any)
+    n2.receive({ topic: 3 } as NodeMessage)
 
     await expect(stateMessagePromise2).resolves.toMatchObject({
       topic: expect.arrayContaining([1, 2, 3]),

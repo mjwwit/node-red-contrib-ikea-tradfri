@@ -15,6 +15,7 @@ export type DeviceType =
   | 'signalRepeater'
   | 'slaveRemote'
   | 'soundRemote'
+  | 'airPurifier'
 
 export const deviceTypeMap: Record<AccessoryTypes, DeviceType> = {
   [AccessoryTypes.blind]: 'blind',
@@ -25,6 +26,7 @@ export const deviceTypeMap: Record<AccessoryTypes, DeviceType> = {
   [AccessoryTypes.signalRepeater]: 'signalRepeater',
   [AccessoryTypes.slaveRemote]: 'slaveRemote',
   [AccessoryTypes.soundRemote]: 'soundRemote',
+  [AccessoryTypes.airPurifier]: 'airPurifier',
 }
 
 export type PowerSource =
