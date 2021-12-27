@@ -53,7 +53,7 @@ If both are specified, the node will pick the action (on or off) from the messag
 ```
 
 ### tradfri-monitor
-This node will send messages when a device or group is updated or removed. Examples for updates are buttons presses, change of brightness or a switch being turned on. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
+This node will send messages when a device or group is updated or removed. Examples for updates are a switch being turned on as well as a change of brightness or color temperature. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
 
 Depending on the type of event, `payload.event` will have a different value.
 
