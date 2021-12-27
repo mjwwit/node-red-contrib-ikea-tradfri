@@ -19,6 +19,8 @@ This module contains 5 nodes:
 ### tradfri-config
 This node is responsible for connecting to an IKEA TRÅDFRI gateway on your network. An attempt is made to automatically discover a gateway on the network. If this is unsuccessful a valid hostname or ip-address has to be entered. You also need to enter the gateways security code, as printed on the sticker on the bottom of the gateway. As per IKEA's guidelines, this code is not stored in Node-RED, instead, only the identity and pre-shared key returned after successful authentication are stored within the node.
 
+This node does not appear as a dedicated node in the palette. Gateways are configured in the settings of one of the other nodes.
+
 ### tradfri-switch-control
 This node is able to control on/off capable devices connected to the gateway. It can do so in 2 different ways:
 
@@ -51,11 +53,11 @@ If both are specified, the node will pick the action (on or off) from the messag
 ```
 
 ### tradfri-monitor
-This node will send messages when a device or group is updated or removed. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
+This node will send messages when a device or group is updated or removed. Examples for updates are a switch being turned on as well as a change of brightness or color temperature. The message will contain all available details for the device or group. Due to how this system works these update messages are also sent when reconnecting to the gateway after a flow deploy.
 
 Depending on the type of event, `payload.event` will have a different value.
 
-In case of the `"device updated"` event, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+In case of the `"device updated"` event, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`. The event contains meaningful data in case of lightbulbs, plugs and blinds while air purifiers, remotes, motion sensors, signal repeaters and sound remotes are not yet fully supported.
 
 #### Output
 ```json
@@ -131,7 +133,7 @@ In case of the `"device updated"` event, depending on the type of the updated de
 ### tradfri-state
 This node will retrieve the current state of one or more devices and/or groups. The output message will contain all available details for the devices and/or groups.
 
-In case of device state, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`.
+In case of device state, depending on the type of the updated device one of the `blind`, `lightbulb`, `sensor`, or `plug` properties will be set and the others will be `undefined`. The event contains meaningful data in case of lightbulbs, plugs and blinds while air purifiers, remotes, motion sensors, signal repeaters and sound remotes are not yet fully supported.
 
 
 #### Input
