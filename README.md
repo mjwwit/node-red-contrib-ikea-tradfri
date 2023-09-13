@@ -1,4 +1,7 @@
 # Node-RED IKEA TRÅDFRI
+
+**This project is archived as I don't have the time to support a project that I'm no longer using. If you're interested in taking over this project, please contact me.**
+
 Node-RED nodes to get updates from and control devices connected to an IKEA TRÅDFRI gateway. This project is based on [AlCalzone](https://github.com/AlCalzone)'s excellent [node-tradfri-client](https://github.com/AlCalzone/node-tradfri-client) module, which does not utilize any compiled binaries.
 
 ## Installation
